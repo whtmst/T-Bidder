@@ -1,0 +1,6 @@
+## Interface: 11200
+## Title: [ |cFFFFFFFFWM|r ] |cFF11A6ECT-Bidder|r |cFF7FFF7Fv1.8|r
+## Version: 1.18
+## Author: Mikhail Palagin (Wht Mst)
+## Notes: |cFF11A6ECT-Bidder|r TEST for |cff00ff00Turtle WoW|r. Made with love by Wht Mst.
+T-Bidder.xml

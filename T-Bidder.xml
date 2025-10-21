@@ -1,0 +1,494 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Script file="T-Bidder.lua" />
+    <Button name="T_Bidder_MinimapButtonFrame" toplevel="true" frameStrata="MEDIUM" parent="Minimap" enableMouse="true" movable="true" hidden="false">
+        <Size>
+            <AbsDimension x="33" y="33"/>
+        </Size>
+        <Anchors>
+            <Anchor point="TOPLEFT">
+                <Offset>
+                    <AbsDimension x="-18" y="-100"/>
+                </Offset>
+            </Anchor>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture name="$parent_Texture" file="Interface\AddOns\T-Bidder\Icon">
+                    <Size>
+                        <AbsDimension x="17" y="17"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset>
+                                <AbsDimension x="8" y="-8"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                    <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture file="Interface\Minimap\MiniMap-TrackingBorder">
+                    <Size>
+                        <AbsDimension x="56" y="56"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
+        <Scripts>
+            <OnLoad>
+                this:RegisterForClicks("LeftButtonUp")
+                this:RegisterForDrag("RightButton")
+                this:SetClampedToScreen(true)
+            </OnLoad>
+            <OnClick>
+                T_Bidder_MinimapButtonOnClick()
+            </OnClick>
+            <OnDragStart>
+                this:LockHighlight()
+                this:StartMoving()
+            </OnDragStart>
+            <OnDragStop>
+                this:UnlockHighlight()
+                this:StopMovingOrSizing()
+            </OnDragStop>
+            <OnEnter>
+                GameTooltip:SetOwner(this, "ANCHOR_LEFT")
+                GameTooltip:AddLine("T-Bidder", 1, 1, 1)
+                GameTooltip:AddLine("Левый клик - открыть интерфейс", 1, 1, 0)
+                GameTooltip:AddLine("Правый клик и перетаскивание - переместить кнопку", 1, 1, 0)
+                GameTooltip:Show()
+            </OnEnter>
+            <OnLeave>
+                GameTooltip:Hide()
+            </OnLeave>
+        </Scripts>
+    </Button>
+
+    <!-- T-Bidder UI Frame -->
+    <Frame name="T_BidderUIFrame" parent="UIParent" toplevel="true" hidden="true">
+        <Size>
+            <AbsDimension x="300" y="130" />
+        </Size>
+        <Anchors>
+            <Anchor point="TOPLEFT">
+                <Offset x="312" y="-118" />
+            </Anchor>
+        </Anchors>
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+            <BackgroundInsets>
+                <AbsInset left="11" right="12" top="12" bottom="11" />
+            </BackgroundInsets>
+            <TileSize>
+                <AbsValue val="32" />
+            </TileSize>
+            <EdgeSize>
+                <AbsValue val="32" />
+            </EdgeSize>
+        </Backdrop>
+        <Frames>
+            <Button name="T_BidderHighestBidTextButton">
+                <Size>
+                    <AbsDimension x="280" y="23" />
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset x="16" y="-25" />
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" justifyH="LEFT" inherits="GameFontNormal">
+                            <Size>
+                                <AbsDimension x="275" y="23"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <Offset>
+                                        <AbsDimension x="5" y="0"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                            <Color r="1" g="1" b="1" />
+                        </FontString>
+                        <FontString name="$parentPlayer" justifyH="LEFT" inherits="GameFontNormal">
+                            <Size>
+                                <AbsDimension x="100" y="23"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentText">
+                                    <Offset x="-100" y="0" />
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Button>
+            <Button name="T_BidderPlayerDKPButton">
+                <Size>
+                    <AbsDimension x="280" y="23" />
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset x="16" y="-40" />
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" justifyH="LEFT" inherits="GameFontNormal">
+                            <Size>
+                                <AbsDimension x="280" y="23"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <Offset>
+                                        <AbsDimension x="5" y="0"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                            <Color r="1" g="1" b="1" />
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Button>
+            <Button name="T_BidderBidMinButton" inherits="UIPanelButtonTemplate" text="Мин. ставка">
+                <Size>
+                    <AbsDimension x="130" y="23" />
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <Offset x="16" y="16" />
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        T_Bidder_BidMinOnClick()
+                        T_BidderBidEditBox:ClearFocus()
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <Button name="T_BidderBidMaxButton" inherits="UIPanelButtonTemplate" text="Макс. ставка">
+                <Size>
+                    <AbsDimension x="130" y="23" />
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT">
+                        <Offset x="-16" y="16" />
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        T_Bidder_BidMaxOnClick()
+                        T_BidderBidEditBox:ClearFocus()
+                    </OnClick>
+                </Scripts>
+            </Button>
+		<EditBox name="T_BidderBidEditBox" inherits="InputBoxTemplate" letters="6">
+			<Size>
+				<AbsDimension x="120" y="32"/>
+			</Size>
+			<Anchors>
+				<Anchor point="BOTTOMLEFT">
+					<Offset x="24" y="38"/>
+				</Anchor>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					this:SetAutoFocus(false)
+					this:SetTextInsets(0, 0, 0, 0)
+				</OnLoad>
+				<OnEnterPressed>
+					this:ClearFocus()
+				</OnEnterPressed>
+			</Scripts>
+			<FontString name="T_BidderBidXString" inherits="GameFontNormal"></FontString>
+		</EditBox>
+            <Button name="T_BidderBidXButton" inherits="UIPanelButtonTemplate" text="Своя ставка">
+                <Size>
+                    <AbsDimension x="130" y="23" />
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT">
+                        <Offset x="-16" y="42" />
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        T_Bidder_BidXOnEnter(T_BidderBidEditBox:GetText())
+                        T_BidderBidEditBox:ClearFocus()
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <!-- Top right corner close button -->
+            <Button name="$parentTopCloseButton" inherits="UIPanelCloseButton">
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset x="265" y="-4" />
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        T_Bidder_CloseUI()
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <Button name="$parentAuctionStatusbar" toplevel="true" hidden="true">
+                <Size>
+                    <AbsDimension x="272" y="23" />
+                </Size>
+                <Anchors>
+                    <Anchor point="LEFT" relativePoint="BOTTOMLEFT" relativeTo="$parent">
+                        <Offset x="14" y="-11" />
+                    </Anchor>
+                </Anchors>
+                <NormalTexture name="$parentTexture" file="Interface\AddOns\T-Bidder\Luna.tga">
+                    <Color r="1" g="1" b="1"/>
+                </NormalTexture>
+                <Scripts>
+                    <OnLoad>
+                        getglobal(this:GetName() .."Texture"):SetVertexColor(0.8, 0.0, 0.0, 1)
+                    </OnLoad>
+                </Scripts>
+            </Button>
+            <Frame name="$parentTimerFrame" parent="T_BidderUIFrame" toplevel="false" hidden="true">
+                <Size>
+                    <AbsDimension x="300" y="50" />
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOM">
+                        <Offset x="0" y="-35" />
+                    </Anchor>
+                </Anchors>
+                <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+                    <BackgroundInsets>
+                        <AbsInset left="12" right="12" top="12" bottom="12" />
+                    </BackgroundInsets>
+                    <TileSize>
+                        <AbsValue val="32" />
+                    </TileSize>
+                    <EdgeSize>
+                        <AbsValue val="32" />
+                    </EdgeSize>
+                </Backdrop>
+            </Frame>
+            <!-- Current item frame -->
+            <Frame name="$parentItem" toplevel="true" hidden="true">
+                <Size>
+                    <AbsDimension x="300" y="80" />
+                </Size>
+                <Anchors>
+                    <Anchor point="TOP">
+                        <Offset>
+                            <AbsDimension x="0" y="85" />
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+                    <BackgroundInsets>
+                        <AbsInset left="12" right="12" top="12" bottom="12" />
+                    </BackgroundInsets>
+                    <TileSize>
+                        <AbsValue val="32" />
+                    </TileSize>
+                    <EdgeSize>
+                        <AbsValue val="32" />
+                    </EdgeSize>
+                </Backdrop>
+                <Frames>
+                    <Frame name="$parentItem">
+                        <Size>
+                            <AbsDimension x="48" y="48" />
+                        </Size>
+                        <Anchors>
+                            <Anchor point="LEFT">
+                                <Offset>
+                                    <AbsDimension x="16" y="0" />
+                                </Offset>
+                            </Anchor>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture name="$parentTexture" file="">
+                                    <Anchors>
+                                        <Anchor point="TOP" relativeTo="$parentHeaderTexture">
+                                            <Offset>
+                                                <AbsDimension x="0" y="-14" />
+                                            </Offset>
+                                        </Anchor>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Frame>
+                </Frames>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString name="$parentItemName" inherits="GameFontNormal" font="Fonts\ARIALN.TTF" text="">
+                            <Color r="" g="" b="" a="" />
+                            <FontHeight val="12" />
+                            <Size>
+                                <AbsDimension x="214" y="40" />
+                            </Size>
+                            <Anchors>
+                                <Anchor point="Left">
+                                    <Offset>
+                                        <AbsDimension x="68" y="0" />
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture name="$parentHeaderTexture" file="Interface\DialogFrame\UI-DialogBox-Header">
+                    <Size>
+                        <AbsDimension x="400" y="64" />
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOP">
+                            <Offset>
+                                <AbsDimension x="0" y="12" />
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+                <FontString inherits="GameFontNormal" text="T-Bidder by Misha (Wht Mst)">
+                    <Anchors>
+                        <Anchor point="TOP" relativeTo="$parentHeaderTexture">
+                            <Offset>
+                                <AbsDimension x="0" y="-14" />
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <Texture file="Interface\DialogFrame\UI-DialogBox-Corner">
+                    <Size>
+                        <AbsDimension x="32" y="32"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT">
+                            <Offset>
+                                <AbsDimension x="-8" y="-8" />
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad>
+                this:SetMovable(true)
+                this:SetUserPlaced(true)
+                this:RegisterForDrag("LeftButton")
+            </OnLoad>
+            <OnUpdate>
+                T_Bidder_BidFrameOnUpdate(arg1)
+            </OnUpdate>
+            <OnDragStart>
+                this:StartMoving()
+            </OnDragStart>
+            <OnDragStop>
+                this:StopMovingOrSizing()
+            </OnDragStop>
+        </Scripts>
+    </Frame>
+
+    <Frame name="T_BidderMaxBidConfirmationFrame" parent="UIParent" toplevel="true" hidden="true">
+        <Size>
+            <AbsDimension x="250" y="150" />
+        </Size>
+        <Anchors>
+            <Anchor point="CENTER">
+                <Offset x="0" y="0" />
+            </Anchor>
+        </Anchors>
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+            <BackgroundInsets>
+                <AbsInset left="11" right="12" top="12" bottom="11" />
+            </BackgroundInsets>
+            <TileSize>
+                <AbsValue val="32" />
+            </TileSize>
+            <EdgeSize>
+                <AbsValue val="32" />
+            </EdgeSize>
+        </Backdrop>
+        <Frames>
+            <Button name="T_BidderMaxBidConfirmTextButton">
+                <Size>
+                    <AbsDimension x="230" y="80" />
+                </Size>
+                <Anchors>
+                    <Anchor point="TOP">
+                        <Offset x="0" y="-15" />
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer>
+                        <FontString name="$parentText" justifyH="CENTER" inherits="GameFontNormal" font="Fonts\ARIALN.TTF">
+                            <Size>
+                                <AbsDimension x="230" y="80"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="LEFT">
+                                    <Offset>
+                                        <AbsDimension x="0" y="0"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                            <FontHeight val="14" />
+                            <Color r="1" g="1" b="1" />
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Button>
+            <Button name="T_BidderMaxBidConfirmButton" inherits="UIPanelButtonTemplate" text="Подтвердить">
+                <Size>
+                    <AbsDimension x="100" y="30" />
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <Offset x="16" y="16" />
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>T_Bidder_MaxBidConfirmOnClick()</OnClick>
+                </Scripts>
+            </Button>
+            <Button name="T_BidderMaxBidDeclineButton" inherits="UIPanelButtonTemplate" text="Отмена">
+                <Size>
+                    <AbsDimension x="100" y="30" />
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT">
+                        <Offset x="-16" y="16" />
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>T_Bidder_MaxBidDeclineOnClick()</OnClick>
+                </Scripts>
+            </Button>
+        </Frames>
+    </Frame>
+
+    <!-- Dummy event frame -->
+    <Frame name="T_BidderEventFrame">
+        <Scripts>
+            <OnLoad>
+                T_Bidder_OnLoad()
+            </OnLoad>
+            <OnEvent>
+                if (T_Bidder_OnEvent) then
+                    T_Bidder_OnEvent(event, arg1, arg2, arg3, arg4, arg5)
+                end
+            </OnEvent>
+        </Scripts>
+    </Frame>
+</Ui>
