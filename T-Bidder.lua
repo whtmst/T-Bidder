@@ -1,8 +1,8 @@
 --[[
 	T-Bidder v1.0 RU Remaster for Turtle WoW
 	Original author: Misha (Wht Mst)
-	Based on: SotA DKP System
-	GitHub: https://github.com/quakerzz/DKPAuctionBidder
+	Based on: DKPAuctionBidder
+	GitHub: https://github.com/whtmst/T-Bidder
 	
 	Аддон для участия в DKP аукционах в рейде.
 	Отслеживает ставки, таймеры и результаты аукционов.
@@ -463,10 +463,10 @@ end
 
 -- Обработчик аддон-сообщений (коммуникация между аддонами)
 function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
-    -- Дебаг информация (логируем все аддон-сообщения для отладки)
-    if prefix == T_Bidder_SOTAprefix or prefix == "SOTA_reply_TBidder" or prefix == "SOTA_TIMER_SYNC" then
-        DEFAULT_CHAT_FRAME:AddMessage("DEBUG ADDON: prefix=[" .. prefix .. "] msg=[" .. msg .. "] sender=[" .. sender .. "]")
-    end
+    -- Дебаг информация (логируем все аддон-сообщения для отладки) - ЗАКОММЕНТИРОВАНО
+    -- if prefix == T_Bidder_SOTAprefix or prefix == "SOTA_reply_TBidder" or prefix == "SOTA_TIMER_SYNC" then
+    --     DEFAULT_CHAT_FRAME:AddMessage("DEBUG ADDON: prefix=[" .. prefix .. "] msg=[" .. msg .. "] sender=[" .. sender .. "]")
+    -- end
     
     -- Ответы от SotA аддона
     if prefix == "SOTA_reply_TBidder" then
