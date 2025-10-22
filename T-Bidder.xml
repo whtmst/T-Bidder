@@ -327,7 +327,7 @@
                 </Frames>
                 <Layers>
                     <Layer level="ARTWORK">
-                        <FontString name="$parentItemName" inherits="GameFontNormal" font="Interface\AddOns\T-Bidder\Fonts\ARIALN.TTF" text="">
+                        <FontString name="$parentItemName" inherits="GameFontNormal" font="Fonts\ARIALN.TTF" text="">
                             <Color r="" g="" b="" a="" />
                             <FontHeight val="12" />
                             <Size>
@@ -432,7 +432,7 @@
                 </Anchors>
                 <Layers>
                     <Layer>
-                        <FontString name="$parentText" justifyH="CENTER" inherits="GameFontNormal" font="Interface\AddOns\T-Bidder\Fonts\ARIALN.TTF">
+                        <FontString name="$parentText" justifyH="CENTER" inherits="GameFontNormal" font="Fonts\ARIALN.TTF">
                             <Size>
                                 <AbsDimension x="230" y="80"/>
                             </Size>
