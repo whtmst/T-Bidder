@@ -59,8 +59,8 @@
             <OnEnter>
                 GameTooltip:SetOwner(this, "ANCHOR_LEFT")
                 GameTooltip:AddLine("T-Bidder", 1, 1, 1)
-                GameTooltip:AddLine("Левый клик - открыть интерфейс", 1, 1, 0)
-                GameTooltip:AddLine("Правый клик и перетаскивание - переместить кнопку", 1, 1, 0)
+                GameTooltip:AddLine("LMB - open addon interface", 1, 1, 0)
+                GameTooltip:AddLine("RMB + Drag - move addon button", 1, 1, 0)
                 GameTooltip:Show()
             </OnEnter>
             <OnLeave>
@@ -155,7 +155,7 @@
                     </Layer>
                 </Layers>
             </Button>
-            <Button name="T_BidderBidMinButton" inherits="UIPanelButtonTemplate" text="Мин. ставка">
+            <Button name="T_BidderBidMinButton" inherits="UIPanelButtonTemplate" text="Min. stavka">
                 <Size>
                     <AbsDimension x="130" y="23" />
                 </Size>
@@ -171,7 +171,7 @@
                     </OnClick>
                 </Scripts>
             </Button>
-            <Button name="T_BidderBidMaxButton" inherits="UIPanelButtonTemplate" text="Макс. ставка">
+            <Button name="T_BidderBidMaxButton" inherits="UIPanelButtonTemplate" text="Maks. stavka">
                 <Size>
                     <AbsDimension x="130" y="23" />
                 </Size>
@@ -207,7 +207,7 @@
 			</Scripts>
 			<FontString name="T_BidderBidXString" inherits="GameFontNormal"></FontString>
 		</EditBox>
-            <Button name="T_BidderBidXButton" inherits="UIPanelButtonTemplate" text="Своя ставка">
+            <Button name="T_BidderBidXButton" inherits="UIPanelButtonTemplate" text="Svoya stavka">
                 <Size>
                     <AbsDimension x="130" y="23" />
                 </Size>
@@ -449,7 +449,7 @@
                     </Layer>
                 </Layers>
             </Button>
-            <Button name="T_BidderMaxBidConfirmButton" inherits="UIPanelButtonTemplate" text="Подтвердить">
+            <Button name="T_BidderMaxBidConfirmButton" inherits="UIPanelButtonTemplate" text="OK">
                 <Size>
                     <AbsDimension x="100" y="30" />
                 </Size>
@@ -462,7 +462,7 @@
                     <OnClick>T_Bidder_MaxBidConfirmOnClick()</OnClick>
                 </Scripts>
             </Button>
-            <Button name="T_BidderMaxBidDeclineButton" inherits="UIPanelButtonTemplate" text="Отмена">
+            <Button name="T_BidderMaxBidDeclineButton" inherits="UIPanelButtonTemplate" text="OTMENA">
                 <Size>
                     <AbsDimension x="100" y="30" />
                 </Size>
