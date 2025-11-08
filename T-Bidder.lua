@@ -1,12 +1,12 @@
 --[[
-	T-Bidder v1.0 RU Remaster for Turtle WoW
+	T-Bidder v1.18 RU Remaster for Turtle WoW
 	Original author: Misha (Wht Mst)
 	Based on: DKPAuctionBidder
 	GitHub: https://github.com/whtmst/T-Bidder
 	
 	Аддон для участия в DKP аукционах в рейде.
 	Отслеживает ставки, таймеры и результаты аукционов.
-	Last update:	v1.0
+	Last update:	v1.18
 	Tested for:		Turtle WoW
 ]]--
 
