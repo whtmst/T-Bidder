@@ -15,12 +15,12 @@
             <Layer level="BACKGROUND">
                 <Texture name="$parent_Texture" file="Interface\AddOns\T-Bidder\Icon">
                     <Size>
-                        <AbsDimension x="17" y="17"/>
+                        <AbsDimension x="20" y="20"/>
                     </Size>
                     <Anchors>
                         <Anchor point="TOPLEFT">
                             <Offset>
-                                <AbsDimension x="8" y="-8"/>
+                                <AbsDimension x="6.65" y="-6.25"/>
                             </Offset>
                         </Anchor>
                     </Anchors>
