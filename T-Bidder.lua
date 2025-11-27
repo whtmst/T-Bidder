@@ -93,6 +93,7 @@ function T_Bidder_OnLoad()
     this:RegisterEvent("CHAT_MSG_RAID_LEADER")
     this:RegisterEvent("CHAT_MSG_RAID_WARNING")
     getglobal("T_Bidder_MinimapButtonFrame"):Show()
+	T_Bidder_PlayerDKP = 0
     
     -- Загружаем данные гильдии если игрок в гильдии
     if IsInGuild() then
@@ -126,7 +127,9 @@ end
 
 -- Обработчик кнопки максимальной ставки (все ДКП)
 function T_Bidder_BidMaxOnClick()
-    local confirmText = "Vi uvereny, chto \n hotite postavit' \n VSE (" .. (T_Bidder_PlayerDKP or 0) ..") \n vashi ochki DKP?"
+
+	local dkp = T_Bidder_PlayerDKP or 0
+    local confirmText = "Вы уверены, что \n хотите поставить \n ВСЕ (" .. dkp ..") \n ваши очки ДКП?"
     
     local textElement = getglobal("T_BidderMaxBidConfirmTextButtonText")
     if textElement then
@@ -147,8 +150,11 @@ end
 
 -- Подтверждение максимальной ставки (нажатие ДА в окне подтверждения)
 function T_Bidder_MaxBidConfirmOnClick()
+
+	local dkp = T_Bidder_PlayerDKP or 0
+	
     if T_Bidder_SubmitBidFlag == 1 then
-        getglobal("T_BidderMaxBidConfirmTextButtonText"):SetText("Vi uvereny, chto \n hotite postavit' VSE vashi ochki DKP (" .. T_Bidder_PlayerDKP ..")?")
+        getglobal("T_BidderMaxBidConfirmTextButtonText"):SetText("Vi uvereny, chto \n hotite postavit' VSE vashi ochki DKP (" .. dkp ..")?")
         T_Bidder_SendBid("bid max")
         T_BidderMaxBidConfirmationFrame:Hide()  -- Скрываем окно подтверждения
         T_Bidder_SubmitBidFlag = 0  -- Блокируем повторные ставки
