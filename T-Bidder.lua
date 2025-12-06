@@ -413,12 +413,14 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         end
     end
     
-    -- Обработка сообщений о ставках от SotA аддона
-    if string.find(msg, "is bidding") and string.find(msg, "DKP for") then
+	-- Обработка сообщений о ставках от SotA аддона
+    local isBiddingMessage = string.find(msg, "is bidding") and string.find(msg, "DKP for")
+    local isAllInMessage = string.find(msg, "went all in") and string.find(msg, "DKP") and string.find(msg, "for")
+    
+    if isBiddingMessage or isAllInMessage then
         local playerName, bidAmount
         
-        -- Парсим сообщение формата: "[SotA] Misha (Officer) is bidding 10 DKP for [Small Glowing Shard]"
-        -- Ищем имя после "]: " и до " ("
+        -- Парсим имя после "] " и до " ("
         local startPos = string.find(msg, "%]%s*")
         if startPos then
             local afterBracket = string.sub(msg, startPos + 1)
@@ -428,20 +430,32 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
                 playerName = string.trim(playerName)
                 
                 -- Ищем сумму ставки
-                local bidStart = string.find(msg, "is bidding ")
-                if bidStart then
-                    local numStart = string.find(msg, "%d", bidStart)
-                    local numEnd = string.find(msg, " DKP", numStart)
-                    if numStart and numEnd then
-                        bidAmount = string.sub(msg, numStart, numEnd - 1)
+                local numStart, numEnd
+                if isBiddingMessage then
+                    -- Формат: "is bidding 10 DKP for"
+                    local bidStart = string.find(msg, "is bidding ")
+                    if bidStart then
+                        numStart = string.find(msg, "%d", bidStart)
+                        numEnd = string.find(msg, " DKP", numStart)
                     end
+                elseif isAllInMessage then
+                    -- Формат: "went all in (3058 DKP) for"
+                    local allInStart = string.find(msg, "went all in %(")
+                    if allInStart then
+                        numStart = string.find(msg, "%d", allInStart)
+                        numEnd = string.find(msg, " DKP%)", numStart)
+                    end
+                end
+                
+                if numStart and numEnd then
+                    bidAmount = string.sub(msg, numStart, numEnd - 1)
                 end
             end
         end
         
         if playerName and bidAmount then
             -- Получаем цвет класса игрока из данных гильдии
-            local classColor = {1, 1, 1} -- белый по умолчанию
+            local classColor = {1, 1, 1}
             
             local memberCount = GetNumGuildMembers()
             for n=1, memberCount, 1 do
@@ -452,17 +466,23 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
                 end
             end
             
-            -- Создаем цветной текст: ставка белым, имя цветом класса, скобки белым
-            local coloredText = "Макс. ставка: " .. bidAmount .. " (|cFF" .. 
+            -- Формируем текст с маркером ALL-IN если это максимальная ставка
+            local prefix = "Макс. ставка: "
+            if isAllInMessage then
+                prefix = "ALL-IN: "
+            end
+            
+            local coloredText = prefix .. bidAmount .. " (|cFF" .. 
                                string.format("%02x%02x%02x", classColor[1], classColor[2], classColor[3]) ..
                                playerName .. "|r)"
             
-            -- Обновляем интерфейс - все в одном поле
             getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
-            getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("") -- очищаем второе поле
+            getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
             
-            T_Bidder_AuctionState = 2  -- Устанавливаем состояние "есть ставки"
-            DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Ставка: " .. playerName .. " - " .. bidAmount .. " ДКП" .. T_Bidder_CHAT_END)
+            T_Bidder_AuctionState = 2
+            
+            local chatPrefix = isAllInMessage and "ALL-IN: " or "Ставка: "
+            DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. chatPrefix .. playerName .. " - " .. bidAmount .. " ДКП" .. T_Bidder_CHAT_END)
         end
     end
 end
