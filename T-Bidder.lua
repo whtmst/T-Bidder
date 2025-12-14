@@ -27,7 +27,7 @@ local T_Bidder_AuctionStatePrePause = 0  -- Состояние до паузы (
 -- Данные игрока и аукциона
 local T_Bidder_PlayerDKP = 0  -- Текущие ДКП игрока
 local T_Bidder_SOTA_Master = ""  -- Имя мастера SotA аддона
-local T_Bidder_SubmitBidTimer = 3  -- Таймер между ставками (защита от спама)
+local T_Bidder_SubmitBidTimer = 5  -- Таймер между ставками (защита от спама)
 local T_Bidder_SubmitBidFlag = 1  -- Флаг разрешения ставки (1=можно ставить)
 
 -- Таймеры аукциона
