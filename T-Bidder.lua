@@ -287,6 +287,7 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
     -- Очистка сообщения от суффикса пьяного персонажа
     if msg then
         msg = string.gsub(msg, " %%.%%.%%.hic!$", "")
+        msg = string.gsub(msg, " ish ", " is ")
     end
 
     -- Начало аукциона (мастер лута объявляет начало)
