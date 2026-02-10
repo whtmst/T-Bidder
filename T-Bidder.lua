@@ -122,6 +122,12 @@ function T_Bidder_BidMinOnClick()
     if T_Bidder_SubmitBidFlag == 1 then
         T_Bidder_SendBid("bid min")
         T_Bidder_SubmitBidFlag = 0  -- Блокируем повторные ставки
+        T_Bidder_BidTimer = 0  -- Сбрасываем таймер, чтобы отсчет пошел заново
+
+        -- Визуально отключаем кнопки
+        getglobal("T_BidderBidMinButton"):Disable()
+        getglobal("T_BidderBidMaxButton"):Disable()
+        getglobal("T_BidderBidXButton"):Disable()
     end
 end
 
@@ -145,6 +151,12 @@ function T_Bidder_BidXOnEnter(dkp)
     if T_Bidder_SubmitBidFlag == 1 then
         T_Bidder_SendBid("bid " .. dkp)
         T_Bidder_SubmitBidFlag = 0  -- Блокируем повторные ставки
+        T_Bidder_BidTimer = 0  -- Сбрасываем таймер, чтобы отсчет пошел заново
+
+        -- Визуально отключаем кнопки
+        getglobal("T_BidderBidMinButton"):Disable()
+        getglobal("T_BidderBidMaxButton"):Disable()
+        getglobal("T_BidderBidXButton"):Disable()
     end
 end
 
@@ -158,6 +170,12 @@ function T_Bidder_MaxBidConfirmOnClick()
         T_Bidder_SendBid("bid max")
         T_BidderMaxBidConfirmationFrame:Hide()  -- Скрываем окно подтверждения
         T_Bidder_SubmitBidFlag = 0  -- Блокируем повторные ставки
+        T_Bidder_BidTimer = 0  -- Сбрасываем таймер, чтобы отсчет пошел заново
+
+        -- Визуально отключаем кнопки
+        getglobal("T_BidderBidMinButton"):Disable()
+        getglobal("T_BidderBidMaxButton"):Disable()
+        getglobal("T_BidderBidXButton"):Disable()
     end
 end
 
@@ -179,6 +197,11 @@ function T_Bidder_BidFrameOnUpdate(elapsed)
     if T_Bidder_BidTimer > T_Bidder_SubmitBidTimer then
         T_Bidder_BidTimer = 0
         T_Bidder_SubmitBidFlag = 1  -- Разрешаем следующую ставку
+
+        -- Включаем кнопки обратно
+        getglobal("T_BidderBidMinButton"):Enable()
+        getglobal("T_BidderBidMaxButton"):Enable()
+        getglobal("T_BidderBidXButton"):Enable()
     end
 
     -- Обновление статус-бара аукциона (только когда аукцион активен)
