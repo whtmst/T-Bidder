@@ -3,7 +3,7 @@
 	Original author: Misha (Wht Mst)
 	Based on: DKPAuctionBidder
 	GitHub: https://github.com/whtmst/T-Bidder
-	
+
 	Аддон для участия в DKP аукционах в рейде.
 	Отслеживает ставки, таймеры и результаты аукционов.
 	Last update:	v1.18
@@ -19,7 +19,7 @@ local T_Bidder_CHAT_END = "|r"  -- Сброс цвета к стандартно
 local T_Bidder_COLOUR_INTRO = "|c80F0F0F0"  -- Светло-серый цвет для интерфейса
 local T_Bidder_COLOUR_CHAT = "|c8040A0F8"   -- Голубой цвет для сообщений в чате
 
--- Состояния аукциона: 
+-- Состояния аукциона:
 -- 0=нет аукциона, 1=аукцион идет, 2=есть ставки, 3=приостановлен, 4=ожидание победителя, 5=победитель объявлен
 local T_Bidder_AuctionState = 0
 local T_Bidder_AuctionStatePrePause = 0  -- Состояние до паузы (для восстановления)
@@ -94,12 +94,12 @@ function T_Bidder_OnLoad()
     this:RegisterEvent("CHAT_MSG_RAID_WARNING")
     getglobal("T_Bidder_MinimapButtonFrame"):Show()
 	T_Bidder_PlayerDKP = 0
-    
+
     -- Загружаем данные гильдии если игрок в гильдии
     if IsInGuild() then
         GuildRoster()
     end
-    
+
     T_Bidder_GetPlayerDKP()
     T_Bidder_StatusbarStandardwidth = getglobal("T_BidderUIFrameAuctionStatusbar"):GetWidth()
 end
@@ -130,7 +130,7 @@ function T_Bidder_BidMaxOnClick()
 
 	local dkp = T_Bidder_PlayerDKP or 0
     local confirmText = "Вы уверены, что \n хотите поставить \n ВСЕ (" .. dkp ..") \n ваши очки ДКП?"
-    
+
     local textElement = getglobal("T_BidderMaxBidConfirmTextButtonText")
     if textElement then
         textElement:SetText(confirmText)
@@ -152,7 +152,7 @@ end
 function T_Bidder_MaxBidConfirmOnClick()
 
 	local dkp = T_Bidder_PlayerDKP or 0
-	
+
     if T_Bidder_SubmitBidFlag == 1 then
         getglobal("T_BidderMaxBidConfirmTextButtonText"):SetText("Vi uvereny, chto \n hotite postavit' VSE vashi ochki DKP (" .. dkp ..")?")
         T_Bidder_SendBid("bid max")
@@ -174,13 +174,13 @@ local T_Bidder_RefreshTimer = 0  -- Таймер обновления стату
 function T_Bidder_BidFrameOnUpdate(elapsed)
     T_Bidder_BidTimer = T_Bidder_BidTimer + elapsed
     T_Bidder_RefreshTimer = T_Bidder_RefreshTimer + elapsed
-    
+
     -- Таймер между ставками (чтобы избежать спама)
     if T_Bidder_BidTimer > T_Bidder_SubmitBidTimer then
         T_Bidder_BidTimer = 0
         T_Bidder_SubmitBidFlag = 1  -- Разрешаем следующую ставку
     end
-    
+
     -- Обновление статус-бара аукциона (только когда аукцион активен)
     if T_Bidder_AuctionState == 1 or T_Bidder_AuctionState == 2 then
         if T_Bidder_RefreshTimer > T_Bidder_AuctionTimerUpdateRate then
@@ -209,7 +209,7 @@ function T_Bidder_MinimapButtonOnClick()
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         elseif T_Bidder_AuctionState == 2 then
             local color = T_Bidder_GetClassColorCodes(T_Bidder_Currentbid[5] or "Warrior")
-            local coloredText = "Max. stavka: " .. T_Bidder_Currentbid[3] .. " (|cFF" .. 
+            local coloredText = "Max. stavka: " .. T_Bidder_Currentbid[3] .. " (|cFF" ..
                                string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
                                T_Bidder_Currentbid[4] .. "|r)"
             getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
@@ -222,7 +222,7 @@ function T_Bidder_MinimapButtonOnClick()
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         elseif T_Bidder_AuctionState == 5 then
             local color = T_Bidder_GetClassColorCodes(T_Bidder_AuctionWinnerClass or "Warrior")
-            local coloredText = "Aukcion zavershen (Pobedil - |cFF" .. 
+            local coloredText = "Aukcion zavershen (Pobedil - |cFF" ..
                                string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
                                T_Bidder_AuctionWinner .. "|r)"
             getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
@@ -245,20 +245,20 @@ end
 -- Функция для парсинга сообщения о победителе аукциона
 function T_Bidder_ParseWinnerMessage(msg)
     local playerName, bidAmount, itemName
-    
+
     -- Парсим сообщение формата: "[Small Glowing Shard] sold to Misha for 10 DKP."
     local itemStart, itemEnd = string.find(msg, "%[(.-)%]")
     if itemStart then
         itemName = string.sub(msg, itemStart + 1, itemEnd - 1)
     end
-    
+
     local soldPos = string.find(msg, "sold to ")
     if soldPos then
         local forPos = string.find(msg, " for ", soldPos)
         if soldPos and forPos then
             playerName = string.sub(msg, soldPos + 8, forPos - 1)
             playerName = string.trim(playerName)
-            
+
             -- Ищем сумму ставки
             local dkpPos = string.find(msg, " DKP", forPos)
             if forPos and dkpPos then
@@ -266,7 +266,7 @@ function T_Bidder_ParseWinnerMessage(msg)
             end
         end
     end
-    
+
     return playerName, bidAmount, itemName
 end
 
@@ -284,25 +284,30 @@ end
 
 -- Обработчик сообщений в рейдовом чате
 function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
+    -- Очистка сообщения от суффикса пьяного персонажа
+    if msg then
+        msg = string.gsub(msg, " %%.%%.%%.hic!$", "")
+    end
+
     -- Начало аукциона (мастер лута объявляет начало)
     if string.find(msg, "Auction open for") then
         T_Bidder_AuctionMaster = sender
         getglobal("T_BidderHighestBidTextButtonText"):SetText("Aukcion idet - stavok net")
         getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         T_Bidder_GetPlayerDKP()
-        
+
         T_BidderUIFrame:Show()
         T_BidderUIFrameAuctionStatusbar:Show()
         T_BidderUIFrameTimerFrame:Show()
-        
+
         T_Bidder_AuctionTime = 30
         T_Bidder_AuctionTimeLeft = 30
         getglobal("T_BidderUIFrameAuctionStatusbar"):SetWidth(T_Bidder_StatusbarStandardwidth)
-        
+
         T_Bidder_AuctionState = 1  -- Аукцион активен, ставок нет
         DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Аукцион начат " .. sender .. T_Bidder_CHAT_END)
     end
-    
+
     -- Отмена аукциона
     if string.find(msg, "Auction was Cancelled") then
         getglobal("T_BidderHighestBidTextButtonText"):SetText("Net aukciona")
@@ -314,7 +319,7 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         T_Bidder_AuctionState = 0  -- Нет аукциона
         DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Аукцион отменен" .. T_Bidder_CHAT_END)
     end
-    
+
     -- Завершение аукциона (первый этап - ожидаем победителя)
     if string.find(msg, "Auction for") and string.find(msg, "is over") then
         getglobal("T_BidderHighestBidTextButtonText"):SetText("Aukcion zavershen (Ojidaem pobeditelya)")
@@ -326,33 +331,33 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         T_Bidder_AuctionState = 4 -- Новое состояние: ожидание победителя
         DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Аукцион завершен (Ожидаем победителя)" .. T_Bidder_CHAT_END)
     end
-    
+
     -- Продажа предмета (победитель аукциона) - второй этап
     if string.find(msg, "sold to") and string.find(msg, "for") and string.find(msg, "DKP") then
         local playerName, bidAmount, itemName = T_Bidder_ParseWinnerMessage(msg)
-        
+
         if playerName and bidAmount then
             -- Сохраняем информацию о победителе
             T_Bidder_AuctionWinner = playerName
             T_Bidder_WinnerBidAmount = bidAmount
             T_Bidder_AuctionItem = itemName or "Predmet"
             T_Bidder_AuctionWinnerClass = T_Bidder_GetWinnerClass(playerName)
-            
+
             -- Обновляем интерфейс с информацией о победителе
             local color = T_Bidder_GetClassColorCodes(T_Bidder_AuctionWinnerClass)
-            local coloredText = "Aukcion zavershen (Pobedil - |cFF" .. 
+            local coloredText = "Aukcion zavershen (Pobedil - |cFF" ..
                                string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
                                playerName .. "|r)"
-            
+
             getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
-            
+
             T_Bidder_AuctionState = 5 -- Финальное состояние: победитель объявлен
-            
+
             DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Победитель: " .. playerName .. " - " .. bidAmount .. " ДКП" .. T_Bidder_CHAT_END)
         end
     end
-    
+
     -- Пауза аукциона
     if string.find(msg, "Auction has been Paused") then
         getglobal("T_BidderHighestBidTextButtonText"):SetText("Aukcion priostanovlen")
@@ -361,7 +366,7 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         T_Bidder_AuctionState = 3  -- Устанавливаем состояние паузы
         DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Аукцион приостановлен" .. T_Bidder_CHAT_END)
     end
-    
+
     -- Возобновление аукциона после паузы
     if string.find(msg, "Auction has been Resumed") then
         if T_Bidder_AuctionStatePrePause == 2 then
@@ -371,7 +376,7 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
                 if T_Bidder_LastHighestBid[5] then
                     color = T_Bidder_GetClassColorCodes(T_Bidder_LastHighestBid[5])
                 end
-                local coloredText = "Max. stavka: " .. T_Bidder_LastHighestBid[3] .. " (|cFF" .. 
+                local coloredText = "Max. stavka: " .. T_Bidder_LastHighestBid[3] .. " (|cFF" ..
                                    string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
                                    T_Bidder_LastHighestBid[4] .. "|r)"
                 getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
@@ -388,13 +393,13 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
             T_Bidder_AuctionState = 1  -- Восстанавливаем состояние "нет ставок"
         end
         DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Аукцион возобновлен" .. T_Bidder_CHAT_END)
-        
+
         -- Всегда показываем текущую минимальную ставку при возобновлении
         if T_Bidder_MinimumStartingBid and T_Bidder_MinimumStartingBid > 0 then
             DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Минимальная ставка: " .. T_Bidder_MinimumStartingBid .. " ДКП" .. T_Bidder_CHAT_END)
         end
     end
-    
+
     -- Объявление минимальной ставки
     if string.find(msg, "Minimum bid:") then
         local minBid
@@ -406,20 +411,20 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
                 minBid = string.sub(msg, numStart, numEnd - 1)
             end
         end
-        
+
         if minBid then
             T_Bidder_MinimumStartingBid = tonumber(minBid)
             DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Минимальная ставка: " .. minBid .. " ДКП" .. T_Bidder_CHAT_END)
         end
     end
-    
+
 	-- Обработка сообщений о ставках от SotA аддона
     local isBiddingMessage = string.find(msg, "is bidding") and string.find(msg, "DKP for")
     local isAllInMessage = string.find(msg, "went all in") and string.find(msg, "DKP") and string.find(msg, "for")
-    
+
     if isBiddingMessage or isAllInMessage then
         local playerName, bidAmount
-        
+
         -- Парсим имя после "] " и до " ("
         local startPos = string.find(msg, "%]%s*")
         if startPos then
@@ -428,7 +433,7 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
             if nameEndPos then
                 playerName = string.sub(afterBracket, 1, nameEndPos - 1)
                 playerName = string.trim(playerName)
-                
+
                 -- Ищем сумму ставки
                 local numStart, numEnd
                 if isBiddingMessage then
@@ -446,17 +451,17 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
                         numEnd = string.find(msg, " DKP%)", numStart)
                     end
                 end
-                
+
                 if numStart and numEnd then
                     bidAmount = string.sub(msg, numStart, numEnd - 1)
                 end
             end
         end
-        
+
         if playerName and bidAmount then
             -- Получаем цвет класса игрока из данных гильдии
             local classColor = {1, 1, 1}
-            
+
             local memberCount = GetNumGuildMembers()
             for n=1, memberCount, 1 do
                 local name, rank, _, _, class = GetGuildRosterInfo(n)
@@ -465,22 +470,22 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
                     break
                 end
             end
-            
+
             -- Формируем текст с маркером ALL-IN если это максимальная ставка
             local prefix = "Max. stavka: "
             if isAllInMessage then
                 prefix = "ALL-IN: "
             end
-            
-            local coloredText = prefix .. bidAmount .. " (|cFF" .. 
+
+            local coloredText = prefix .. bidAmount .. " (|cFF" ..
                                string.format("%02x%02x%02x", classColor[1], classColor[2], classColor[3]) ..
                                playerName .. "|r)"
-            
+
             getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
-            
+
             T_Bidder_AuctionState = 2
-            
+
             local chatPrefix = isAllInMessage and "ALL-IN: " or "Ставка: "
             DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. chatPrefix .. playerName .. " - " .. bidAmount .. " ДКП" .. T_Bidder_CHAT_END)
         end
@@ -493,7 +498,7 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
     -- if prefix == T_Bidder_SOTAprefix or prefix == "SOTA_reply_TBidder" or prefix == "SOTA_TIMER_SYNC" then
     --     DEFAULT_CHAT_FRAME:AddMessage("DEBUG ADDON: prefix=[" .. prefix .. "] msg=[" .. msg .. "] sender=[" .. sender .. "]")
     -- end
-    
+
     -- Ответы от SotA аддона
     if prefix == "SOTA_reply_TBidder" then
         if string.find(msg, UnitName("player")) == 1 then
@@ -501,7 +506,7 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
             DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. message .. T_Bidder_CHAT_END)
         end
     end
-    
+
     -- Основные сообщения SotA аддона
     if prefix == T_Bidder_SOTAprefix then
         local msg_HB = string.sub(msg, 1, string.len("HIGEST_BID")+1)
@@ -528,7 +533,7 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
         -- Получение информации о максимальной ставке от SotA
         elseif msg_HB == "HIGHEST_BID" then
             local color = T_Bidder_GetClassColorCodes(T_Bidder_Currentbid[5] or "Warrior")
-            local coloredText = "Max. stavka: " .. T_Bidder_Currentbid[3] .. " (|cFF" .. 
+            local coloredText = "Max. stavka: " .. T_Bidder_Currentbid[3] .. " (|cFF" ..
                                string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
                                T_Bidder_Currentbid[4] .. "|r)"
             getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
@@ -562,7 +567,7 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
         elseif string.find(msg, "SOTA_AUCTION_RESUME") == 1 then
             if T_Bidder_AuctionStatePrePause == 2 then
                 local color = T_Bidder_GetClassColorCodes(T_Bidder_LastHighestBid[5] or "Warrior")
-                local coloredText = "Max. stavka: " .. T_Bidder_LastHighestBid[3] .. " (|cFF" .. 
+                local coloredText = "Max. stavka: " .. T_Bidder_LastHighestBid[3] .. " (|cFF" ..
                                    string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
                                    T_Bidder_LastHighestBid[4] .. "|r)"
                 getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
@@ -607,11 +612,11 @@ function T_Bidder_GetPlayerDKP()
             if not note or note == "" then
                 note = "<0>"  -- Значение по умолчанию если заметка пустая
             end
-        
+
             if not online then
                 online = 0
             end
-        
+
             -- Парсим ДКП из формата "<число>"
             local _, _, dkp = string.find(note, "<(-?%d*)>")
             if not dkp then
