@@ -292,12 +292,12 @@
             <!-- Current item frame -->
             <Frame name="$parentItem" toplevel="true" hidden="true">
                 <Size>
-                    <AbsDimension x="300" y="80" />
+                    <AbsDimension x="300" y="44" />
                 </Size>
                 <Anchors>
                     <Anchor point="TOP">
                         <Offset>
-                            <AbsDimension x="0" y="85" />
+                            <AbsDimension x="0" y="50" />
                         </Offset>
                     </Anchor>
                 </Anchors>
@@ -316,33 +316,6 @@
                         <AbsValue val="32" />
                     </EdgeSize>
                 </Backdrop>
-                <Frames>
-                    <Frame name="$parentItem">
-                        <Size>
-                            <AbsDimension x="48" y="48" />
-                        </Size>
-                        <Anchors>
-                            <Anchor point="LEFT">
-                                <Offset>
-                                    <AbsDimension x="16" y="0" />
-                                </Offset>
-                            </Anchor>
-                        </Anchors>
-                        <Layers>
-                            <Layer level="ARTWORK">
-                                <Texture name="$parentTexture" file="">
-                                    <Anchors>
-                                        <Anchor point="TOP" relativeTo="$parentHeaderTexture">
-                                            <Offset>
-                                                <AbsDimension x="0" y="-14" />
-                                            </Offset>
-                                        </Anchor>
-                                    </Anchors>
-                                </Texture>
-                            </Layer>
-                        </Layers>
-                    </Frame>
-                </Frames>
                 <Layers>
                     <Layer level="ARTWORK">
                         <FontString
@@ -353,18 +326,41 @@
                         >
                             <FontHeight val="12" />
                             <Size>
-                                <AbsDimension x="214" y="40" />
+                                <AbsDimension x="270" y="34" />
                             </Size>
                             <Anchors>
-                                <Anchor point="Left">
+                                <Anchor point="CENTER">
                                     <Offset>
-                                        <AbsDimension x="68" y="0" />
+                                        <AbsDimension x="0" y="1" />
                                     </Offset>
                                 </Anchor>
                             </Anchors>
                         </FontString>
                     </Layer>
                 </Layers>
+                <Frames>
+                    <!-- Добавляем невидимую кнопку для обработки наведения мыши на всё имя предмета -->
+                    <Button name="$parentItemHoverArea">
+                        <Size>
+                            <AbsDimension x="270" y="34" />
+                        </Size>
+                        <Anchors>
+                            <Anchor point="CENTER">
+                                <Offset>
+                                    <AbsDimension x="0" y="1" />
+                                </Offset>
+                            </Anchor>
+                        </Anchors>
+                        <Scripts>
+                            <OnEnter>
+                                T_Bidder_ShowItemTooltipOnEnter()
+                            </OnEnter>
+                            <OnLeave>
+                                T_Bidder_HideItemTooltipOnLeave()
+                            </OnLeave>
+                        </Scripts>
+                    </Button>
+                </Frames>
             </Frame>
         </Frames>
         <Layers>

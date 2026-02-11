@@ -34,6 +34,14 @@ local T_Bidder_SOTAprefix = "SOTAv1"
 -- Проверка наличия pfUI
 local T_Bidder_UseClassColors = IsAddOnLoaded("pfUI") or false
 
+-- Ссылка на предмет текущего аукциона (для интеграции с SOTA)
+local T_Bidder_AuctionItemLink = ""
+local T_Bidder_AuctionItemID = 0
+
+-- Переменные для отслеживания обновления информации о предмете
+local T_Bidder_ItemInfoCheckTimer = 0
+local T_Bidder_ItemInfoCheckInterval = 0.5  -- Проверять каждые 0.5 секунды
+
 -- Цветовые коды для текста
 local T_Bidder_CHAT_END = "|r"  -- Сброс цвета к стандартному
 local T_Bidder_COLOUR_INTRO = "|c80F0F0F0"  -- Светло-серый цвет для интерфейса
@@ -212,6 +220,7 @@ local T_Bidder_RefreshTimer = 0  -- Таймер обновления стату
 function T_Bidder_BidFrameOnUpdate(elapsed)
     T_Bidder_BidTimer = T_Bidder_BidTimer + elapsed
     T_Bidder_RefreshTimer = T_Bidder_RefreshTimer + elapsed
+    T_Bidder_ItemInfoCheckTimer = T_Bidder_ItemInfoCheckTimer + elapsed
 
     -- Таймер между ставками (чтобы избежать спама)
     if T_Bidder_BidTimer > T_Bidder_SubmitBidTimer then
@@ -237,7 +246,119 @@ function T_Bidder_BidFrameOnUpdate(elapsed)
             getglobal("T_BidderUIFrameAuctionStatusbar"):SetWidth(newwidth)  -- Обновляем ширину статус-бара
         end
     end
+
+    -- Проверяем информацию о предмете, если она недоступна
+    if T_Bidder_AuctionItemLink ~= "" and T_Bidder_ItemInfoCheckTimer > T_Bidder_ItemInfoCheckInterval then
+        T_Bidder_CheckItemInfo()
+        T_Bidder_ItemInfoCheckTimer = 0  -- Сбрасываем таймер
+    end
 end
+
+-- Функция проверки информации о предмете и обновления отображения
+function T_Bidder_CheckItemInfo()
+    if T_Bidder_AuctionItemLink and T_Bidder_AuctionItemLink ~= "" then
+        local _, _, itemID = string.find(T_Bidder_AuctionItemLink, "item:(%d+):")
+        if itemID then
+            -- Пытаемся получить информацию о предмете
+            local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemID)
+
+            if itemName then
+                -- Информация о предмете теперь доступна, обновляем интерфейс
+                local nameFrame = getglobal("T_BidderUIFrameItemItemName")
+                if nameFrame then
+                    nameFrame:SetText(itemName)
+
+                    -- Устанавливаем цвет названия в зависимости от редкости
+                    local qualityColors = {
+                        [0] = {157, 157, 157},   -- Poor (Серый)
+                        [1] = {255, 255, 255},   -- Common (Белый)
+                        [2] = {30, 240, 30},     -- Uncommon (Зеленый)
+                        [3] = {0, 112, 221},     -- Rare (Синий)
+                        [4] = {163, 53, 238},    -- Epic (Фиолетовый)
+                        [5] = {255, 128, 0},     -- Legendary (Оранжевый)
+                        [6] = {230, 204, 128}    -- Artifact (Желтый)
+                    }
+
+                    local color = qualityColors[itemRarity] or qualityColors[1]
+                    nameFrame:SetTextColor(color[1]/255, color[2]/255, color[3]/255, 1)
+                end
+
+                -- Информация успешно загружена, можно прекратить проверку
+                T_Bidder_ItemInfoCheckTimer = 0
+            end
+        end
+    end
+end
+
+-- Функция показа тултипа предмета при наведении мыши
+function T_Bidder_ShowItemTooltipOnEnter()
+    if T_Bidder_AuctionItemLink and T_Bidder_AuctionItemLink ~= "" then
+        -- Проверяем, есть ли ID предмета
+        if T_Bidder_AuctionItemID and T_Bidder_AuctionItemID > 0 then
+            -- Используем ID предмета для создания гиперссылки
+            local itemLink = "item:" .. T_Bidder_AuctionItemID .. ":0:0:0"
+
+            -- Показываем тултип с информацией о предмете, прикрепленный к фрейму
+            local itemFrame = getglobal("T_BidderUIFrameItem")
+            GameTooltip:SetOwner(itemFrame, "ANCHOR_RIGHT")
+            local success = pcall(function() GameTooltip:SetHyperlink(itemLink) end)
+
+            if not success then
+                -- Если SetHyperlink не сработал, пробуем использовать оригинальную строку
+                local successOrig = pcall(function() GameTooltip:SetHyperlink(T_Bidder_AuctionItemLink) end)
+                if not successOrig then
+                    -- Если и это не сработало, показываем информацию из строки
+                    local start, finish, itemNameFromLink = string.find(T_Bidder_AuctionItemLink, "%[(.+)%]")
+
+                    GameTooltip:SetOwner(itemFrame, "ANCHOR_RIGHT")
+                    if itemNameFromLink then
+                        GameTooltip:SetText("Предмет: " .. itemNameFromLink, 1, 1, 1)
+                    else
+                        GameTooltip:SetText("Предмет", 1, 1, 1)
+                    end
+                    GameTooltip:AddLine("Информация о предмете недоступна", 1, 0.5, 0.5)
+                    GameTooltip:AddLine("Предмет может быть недоступен на этом сервере", 1, 0.5, 0.5)
+                    GameTooltip:AddLine("Попробуйте нажать на предмет в чате для загрузки информации", 1, 0.5, 0.5)
+                    GameTooltip:Show()
+                end
+            end
+        else
+            -- Если ID неизвестен, пробуем использовать оригинальную строку
+            local itemFrame = getglobal("T_BidderUIFrameItem")
+            GameTooltip:SetOwner(itemFrame, "ANCHOR_RIGHT")
+            local success = pcall(function() GameTooltip:SetHyperlink(T_Bidder_AuctionItemLink) end)
+
+            if not success then
+                -- Если SetHyperlink не сработал, показываем информацию из строки
+                local start, finish, itemNameFromLink = string.find(T_Bidder_AuctionItemLink, "%[(.+)%]")
+
+                GameTooltip:SetOwner(itemFrame, "ANCHOR_RIGHT")
+                if itemNameFromLink then
+                    GameTooltip:SetText("Предмет: " .. itemNameFromLink, 1, 1, 1)
+                else
+                    GameTooltip:SetText("Предмет", 1, 1, 1)
+                end
+                GameTooltip:AddLine("Информация о предмете недоступна", 1, 0.5, 0.5)
+                GameTooltip:AddLine("Предмет может быть недоступен на этом сервере", 1, 0.5, 0.5)
+                GameTooltip:AddLine("Попробуйте нажать на предмет в чате для загрузки информации", 1, 0.5, 0.5)
+                GameTooltip:Show()
+            end
+        end
+    else
+        -- Показываем сообщение о том, что информация недоступна
+        local itemFrame = getglobal("T_BidderUIFrameItem")
+        GameTooltip:SetOwner(itemFrame, "ANCHOR_RIGHT")
+        GameTooltip:SetText("Информация о предмете недоступна", 1, 0.5, 0.5)
+        GameTooltip:AddLine("Предмет аукциона не определен", 1, 0.5, 0.5)
+        GameTooltip:Show()
+    end
+end
+
+-- Функция скрытия тултипа при уходе мыши
+function T_Bidder_HideItemTooltipOnLeave()
+    GameTooltip:Hide()
+end
+
 
 -- Обработчик клика по кнопке миникарты (показать/скрыть интерфейс)
 function T_Bidder_MinimapButtonOnClick()
@@ -392,6 +513,12 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         getglobal("T_BidderBidMaxButton"):Enable()
         getglobal("T_BidderBidXButton"):Enable()
         T_Bidder_AuctionState = 0  -- Нет аукциона
+        -- Очищаем информацию о предмете аукциона и скрываем фрейм
+        T_Bidder_AuctionItemLink = ""
+        local itemFrame = getglobal("T_BidderUIFrameItem")
+        if itemFrame then
+            itemFrame:Hide()
+        end
         DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Аукцион отменен" .. T_Bidder_CHAT_END)
     end
 
@@ -404,6 +531,12 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         getglobal("T_BidderBidMaxButton"):Enable()
         getglobal("T_BidderBidXButton"):Enable()
         T_Bidder_AuctionState = 4 -- Новое состояние: ожидание победителя
+        -- Очищаем информацию о предмете аукциона и скрываем фрейм
+        T_Bidder_AuctionItemLink = ""
+        local itemFrame = getglobal("T_BidderUIFrameItem")
+        if itemFrame then
+            itemFrame:Hide()
+        end
         DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Аукцион завершен (Ожидаем победителя)" .. T_Bidder_CHAT_END)
     end
 
@@ -433,7 +566,12 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
 
             T_Bidder_AuctionState = 5 -- Финальное состояние: победитель объявлен
-
+            -- Очищаем информацию о предмете аукциона и скрываем фрейм
+            T_Bidder_AuctionItemLink = ""
+            local itemFrame = getglobal("T_BidderUIFrameItem")
+            if itemFrame then
+                itemFrame:Hide()
+            end
             DEFAULT_CHAT_FRAME:AddMessage(T_Bidder_COLOUR_CHAT .. "Победитель: " .. playerName .. " - " .. bidAmount .. " ДКП" .. T_Bidder_CHAT_END)
         end
     end
@@ -589,6 +727,16 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
     --     DEFAULT_CHAT_FRAME:AddMessage("DEBUG ADDON: prefix=[" .. prefix .. "] msg=[" .. msg .. "] sender=[" .. sender .. "]")
     -- end
 
+    -- Обработка сообщения с ссылкой на предмет от SOTA
+    if prefix == "SOTA_ITEM_LINK" then
+        -- Можно обновить интерфейс, чтобы показать предмет
+        T_Bidder_UpdateItemDisplay(msg)
+
+
+        -- Также можно обновить тултип при наведении на элемент интерфейса
+        return  -- выходим, чтобы не обрабатывать дальше как обычное сообщение
+    end
+
     -- Ответы от SotA аддона
     if prefix == "SOTA_reply_TBidder" then
         if string.find(msg, UnitName("player")) == 1 then
@@ -651,6 +799,12 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
             getglobal("T_BidderUIFrameTimerFrame"):Hide()
             getglobal("T_BidderBidMaxButton"):Enable()
             getglobal("T_BidderBidXButton"):Enable()
+            -- Очищаем информацию о предмете аукциона и скрываем фрейм
+            T_Bidder_AuctionItemLink = ""
+            local itemFrame = getglobal("T_BidderUIFrameItem")
+            if itemFrame then
+                itemFrame:Hide()
+            end
 
         -- Пауза аукциона через SotA
         elseif msg == "SOTA_AUCTION_PAUSE" then
@@ -757,4 +911,139 @@ function T_Bidder_SplitString(inputstr)
         i = i + 1
     end
     return t
+end
+
+-- Функция обновления отображения предмета
+function T_Bidder_UpdateItemDisplay(itemLink)
+    -- Сохраняем оригинальную строку, которую SOTA отправил
+    -- Она содержит полную item-ссылку с цветовыми кодами и может быть использована напрямую
+    T_Bidder_AuctionItemLink = itemLink
+
+    -- Извлекаем ID предмета из строки itemLink
+    local _, _, itemID = string.find(itemLink, "item:(%d+):")
+    if itemID then
+        T_Bidder_AuctionItemID = tonumber(itemID)
+
+        -- Пытаемся получить информацию о предмете
+        local itemName, itemLinkResult, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemID)
+
+        if itemName then
+            -- Информация о предмете уже в кэше, обновляем интерфейс
+            local nameFrame = getglobal("T_BidderUIFrameItemItemName")
+            if nameFrame then
+                -- Обрезаем слишком длинные названия
+                local displayName = T_Bidder_TruncateString(itemName, 40) -- Ограничиваем 40 символами
+                nameFrame:SetText(displayName)
+
+                -- Устанавливаем цвет названия в зависимости от редкости
+                local qualityColors = {
+                    [0] = {157, 157, 157},   -- Poor (Серый)
+                    [1] = {255, 255, 255},   -- Common (Белый)
+                    [2] = {30, 240, 30},     -- Uncommon (Зеленый)
+                    [3] = {0, 112, 221},     -- Rare (Синий)
+                    [4] = {163, 53, 238},    -- Epic (Фиолетовый)
+                    [5] = {255, 128, 0},     -- Legendary (Оранжевый)
+                    [6] = {230, 204, 128}    -- Artifact (Желтый)
+                }
+
+                local color = qualityColors[itemRarity] or qualityColors[1]
+                nameFrame:SetTextColor(color[1]/255, color[2]/255, color[3]/255, 1)
+            end
+        else
+            -- Пытаемся использовать tooltip для загрузки информации
+            GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+            local success = pcall(function() GameTooltip:SetHyperlink("item:" .. itemID .. ":0:0:0") end)
+
+            if success then
+                -- Ждем немного, чтобы информация могла загрузиться
+                -- и снова пробуем получить информацию
+                local itemNameAfter, _, itemRarityAfter, _, _, _, _, _, _, itemTextureAfter = GetItemInfo(itemID)
+
+                if itemNameAfter then
+                    local nameFrame = getglobal("T_BidderUIFrameItemItemName")
+                    if nameFrame then
+                        -- Обрезаем слишком длинные названия
+                        local displayName = T_Bidder_TruncateString(itemNameAfter, 40) -- Ограничиваем 40 символами
+                        nameFrame:SetText(displayName)
+
+                        local qualityColors = {
+                            [0] = {157, 157, 157},   -- Poor (Серый)
+                            [1] = {255, 255, 255},   -- Common (Белый)
+                            [2] = {30, 240, 30},     -- Uncommon (Зеленый)
+                            [3] = {0, 112, 221},     -- Rare (Синий)
+                            [4] = {163, 53, 238},    -- Epic (Фиолетовый)
+                            [5] = {255, 128, 0},     -- Legendary (Оранжевый)
+                            [6] = {230, 204, 128}    -- Artifact (Желтый)
+                        }
+
+                        local color = qualityColors[itemRarityAfter] or qualityColors[1]
+                        nameFrame:SetTextColor(color[1]/255, color[2]/255, color[3]/255, 1)
+                    end
+                else
+                    -- Если не удалось получить информацию напрямую, извлекаем имя из строки
+                    local start, finish, itemNameFromLink = string.find(itemLink, "%[(.+)%]")
+                    if itemNameFromLink then
+                        local nameFrame = getglobal("T_BidderUIFrameItemItemName")
+                        if nameFrame then
+                            -- Обрезаем слишком длинные названия
+                            local displayName = T_Bidder_TruncateString(itemNameFromLink, 40) -- Ограничиваем 40 символами
+                            nameFrame:SetText(displayName)
+                            nameFrame:SetTextColor(1, 1, 1, 1) -- Белый цвет по умолчанию
+                        end
+                    end
+                end
+            else
+                -- Если SetHyperlink не сработал, извлекаем имя из строки
+                local start, finish, itemNameFromLink = string.find(itemLink, "%[(.+)%]")
+                if itemNameFromLink then
+                    local nameFrame = getglobal("T_BidderUIFrameItemItemName")
+                    if nameFrame then
+                        -- Обрезаем слишком длинные названия
+                        local displayName = T_Bidder_TruncateString(itemNameFromLink, 40) -- Ограничиваем 40 символами
+                        nameFrame:SetText(displayName)
+                        nameFrame:SetTextColor(1, 1, 1, 1) -- Белый цвет по умолчанию
+                    end
+                end
+            end
+        end
+    else
+        -- Если не удалось извлечь ID, используем имя из строки
+        local start, finish, itemNameFromLink = string.find(itemLink, "%[(.+)%]")
+        if itemNameFromLink then
+            local nameFrame = getglobal("T_BidderUIFrameItemItemName")
+            if nameFrame then
+                -- Обрезаем слишком длинные названия
+                local displayName = T_Bidder_TruncateString(itemNameFromLink, 40) -- Ограничиваем 40 символами
+                nameFrame:SetText(displayName)
+                nameFrame:SetTextColor(1, 1, 1, 1) -- Белый цвет по умолчанию
+            end
+        end
+    end
+
+    -- Показываем фрейм предмета в любом случае
+    local itemFrame = getglobal("T_BidderUIFrameItem")
+    if itemFrame then
+        itemFrame:Show()
+    end
+end
+
+-- Функция для обрезки длинных строк
+function T_Bidder_TruncateString(str, maxLength)
+    if string.len(str) <= maxLength then
+        return str
+    end
+
+    -- Проверяем, возможно строка содержит многобайтовые символы (кириллица)
+    local length = 0
+    local result = ""
+    for i = 1, string.len(str) do
+        local c = string.sub(str, i, i)
+        result = result .. c
+        length = length + 1
+        if length >= maxLength then
+            result = result .. "..."
+            break
+        end
+    end
+    return result
 end
