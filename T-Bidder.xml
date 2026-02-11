@@ -292,12 +292,12 @@
             <!-- Current item frame -->
             <Frame name="$parentItem" toplevel="true" hidden="true">
                 <Size>
-                    <AbsDimension x="300" y="44" />
+                    <AbsDimension x="300" y="60" /> <!-- Здесь задается высота фрейма предмета -->
                 </Size>
                 <Anchors>
                     <Anchor point="TOP">
                         <Offset>
-                            <AbsDimension x="0" y="50" />
+                            <AbsDimension x="0" y="68" /> <!-- Здесь задается положение фрейма предмета относительно родителя -->
                         </Offset>
                     </Anchor>
                 </Anchors>
@@ -326,7 +326,7 @@
                         >
                             <FontHeight val="12" />
                             <Size>
-                                <AbsDimension x="270" y="34" />
+                                <AbsDimension x="270" y="40" />
                             </Size>
                             <Anchors>
                                 <Anchor point="CENTER">
@@ -342,7 +342,7 @@
                     <!-- Добавляем невидимую кнопку для обработки наведения мыши на всё имя предмета -->
                     <Button name="$parentItemHoverArea">
                         <Size>
-                            <AbsDimension x="270" y="34" />
+                            <AbsDimension x="270" y="40" /> <!-- Здесь задается размер области для маусовера -->
                         </Size>
                         <Anchors>
                             <Anchor point="CENTER">
