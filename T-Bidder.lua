@@ -314,7 +314,7 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
     end
 
     -- Синхронизация таймера по сообщениям чата (SotA)
-    -- Это нужно, потому что иногда аддон не присылает пакет синхронизации при продлении аукциона
+    -- Это нужно, потому что аддон не присылает пакет синхронизации при продлении аукциона
     if string.find(msg, "SotA") and string.find(msg, "Осталось") then
         local _, _, seconds = string.find(msg, "Осталось (%d+) секун")
         if seconds then
