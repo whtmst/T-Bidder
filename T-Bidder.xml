@@ -1,13 +1,21 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <Script file="T-Bidder.lua" />
-    <Button name="T_Bidder_MinimapButtonFrame" toplevel="true" frameStrata="MEDIUM" parent="Minimap" enableMouse="true" movable="true" hidden="false">
+    <Button
+        name="T_Bidder_MinimapButtonFrame"
+        toplevel="true"
+        frameStrata="MEDIUM"
+        parent="Minimap"
+        enableMouse="true"
+        movable="true"
+        hidden="false"
+    >
         <Size>
-            <AbsDimension x="33" y="33"/>
+            <AbsDimension x="33" y="33" />
         </Size>
         <Anchors>
             <Anchor point="TOPLEFT">
                 <Offset>
-                    <AbsDimension x="-18" y="-100"/>
+                    <AbsDimension x="-18" y="-100" />
                 </Offset>
             </Anchor>
         </Anchors>
@@ -15,30 +23,30 @@
             <Layer level="BACKGROUND">
                 <Texture name="$parent_Texture" file="Interface\AddOns\T-Bidder\Icon">
                     <Size>
-                        <AbsDimension x="20" y="20"/>
+                        <AbsDimension x="20" y="20" />
                     </Size>
                     <Anchors>
                         <Anchor point="TOPLEFT">
                             <Offset>
-                                <AbsDimension x="6.65" y="-6.25"/>
+                                <AbsDimension x="6.65" y="-6.25" />
                             </Offset>
                         </Anchor>
                     </Anchors>
-                    <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+                    <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925" />
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
                 <Texture file="Interface\Minimap\MiniMap-TrackingBorder">
                     <Size>
-                        <AbsDimension x="56" y="56"/>
+                        <AbsDimension x="56" y="56" />
                     </Size>
                     <Anchors>
-                        <Anchor point="TOPLEFT"/>
+                        <Anchor point="TOPLEFT" />
                     </Anchors>
                 </Texture>
             </Layer>
         </Layers>
-        <HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
+        <HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight" />
         <Scripts>
             <OnLoad>
                 this:RegisterForClicks("LeftButtonUp")
@@ -79,7 +87,11 @@
                 <Offset x="312" y="-118" />
             </Anchor>
         </Anchors>
-        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+        <Backdrop
+            bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+            edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+            tile="true"
+        >
             <BackgroundInsets>
                 <AbsInset left="11" right="12" top="12" bottom="11" />
             </BackgroundInsets>
@@ -104,20 +116,19 @@
                     <Layer>
                         <FontString name="$parentText" justifyH="LEFT" inherits="GameFontNormal">
                             <Size>
-                                <AbsDimension x="275" y="23"/>
+                                <AbsDimension x="275" y="23" />
                             </Size>
                             <Anchors>
                                 <Anchor point="LEFT">
                                     <Offset>
-                                        <AbsDimension x="5" y="0"/>
+                                        <AbsDimension x="5" y="0" />
                                     </Offset>
                                 </Anchor>
                             </Anchors>
-                            <Color r="1" g="1" b="1" />
                         </FontString>
                         <FontString name="$parentPlayer" justifyH="LEFT" inherits="GameFontNormal">
                             <Size>
-                                <AbsDimension x="100" y="23"/>
+                                <AbsDimension x="100" y="23" />
                             </Size>
                             <Anchors>
                                 <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentText">
@@ -141,16 +152,15 @@
                     <Layer>
                         <FontString name="$parentText" justifyH="LEFT" inherits="GameFontNormal">
                             <Size>
-                                <AbsDimension x="280" y="23"/>
+                                <AbsDimension x="280" y="23" />
                             </Size>
                             <Anchors>
                                 <Anchor point="LEFT">
                                     <Offset>
-                                        <AbsDimension x="5" y="0"/>
+                                        <AbsDimension x="5" y="0" />
                                     </Offset>
                                 </Anchor>
                             </Anchors>
-                            <Color r="1" g="1" b="1" />
                         </FontString>
                     </Layer>
                 </Layers>
@@ -189,11 +199,11 @@
             </Button>
 		<EditBox name="T_BidderBidEditBox" inherits="InputBoxTemplate" letters="6">
 			<Size>
-				<AbsDimension x="120" y="32"/>
+				<AbsDimension x="120" y="32" />
 			</Size>
 			<Anchors>
 				<Anchor point="BOTTOMLEFT">
-					<Offset x="24" y="38"/>
+					<Offset x="24" y="38" />
 				</Anchor>
 			</Anchors>
 			<Scripts>
@@ -205,7 +215,7 @@
 					this:ClearFocus()
 				</OnEnterPressed>
 			</Scripts>
-			<FontString name="T_BidderBidXString" inherits="GameFontNormal"></FontString>
+			<FontString name="T_BidderBidXString" inherits="GameFontNormal" />
 		</EditBox>
             <Button name="T_BidderBidXButton" inherits="UIPanelButtonTemplate" text="Своя ставка">
                 <Size>
@@ -246,7 +256,7 @@
                     </Anchor>
                 </Anchors>
                 <NormalTexture name="$parentTexture" file="Interface\AddOns\T-Bidder\Luna.tga">
-                    <Color r="1" g="1" b="1"/>
+                    <Color r="1" g="1" b="1" />
                 </NormalTexture>
                 <Scripts>
                     <OnLoad>
@@ -263,7 +273,11 @@
                         <Offset x="0" y="-35" />
                     </Anchor>
                 </Anchors>
-                <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+                <Backdrop
+                    bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+                    edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+                    tile="true"
+                >
                     <BackgroundInsets>
                         <AbsInset left="12" right="12" top="12" bottom="12" />
                     </BackgroundInsets>
@@ -287,7 +301,11 @@
                         </Offset>
                     </Anchor>
                 </Anchors>
-                <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+                <Backdrop
+                    bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+                    edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+                    tile="true"
+                >
                     <BackgroundInsets>
                         <AbsInset left="12" right="12" top="12" bottom="12" />
                     </BackgroundInsets>
@@ -327,8 +345,12 @@
                 </Frames>
                 <Layers>
                     <Layer level="ARTWORK">
-                        <FontString name="$parentItemName" inherits="GameFontNormal" font="Fonts\ARIALN.TTF" text="">
-                            <Color r="" g="" b="" a="" />
+                        <FontString
+                            name="$parentItemName"
+                            inherits="GameFontNormal"
+                            font="Interface\AddOns\T-Bidder\Fonts\ARIALN.ttf"
+                            text=""
+                        >
                             <FontHeight val="12" />
                             <Size>
                                 <AbsDimension x="214" y="40" />
@@ -370,7 +392,7 @@
                 </FontString>
                 <Texture file="Interface\DialogFrame\UI-DialogBox-Corner">
                     <Size>
-                        <AbsDimension x="32" y="32"/>
+                        <AbsDimension x="32" y="32" />
                     </Size>
                     <Anchors>
                         <Anchor point="TOPRIGHT">
@@ -409,7 +431,11 @@
                 <Offset x="0" y="0" />
             </Anchor>
         </Anchors>
-        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+        <Backdrop
+            bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+            edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+            tile="true"
+        >
             <BackgroundInsets>
                 <AbsInset left="11" right="12" top="12" bottom="11" />
             </BackgroundInsets>
@@ -432,19 +458,23 @@
                 </Anchors>
                 <Layers>
                     <Layer>
-                        <FontString name="$parentText" justifyH="CENTER" inherits="GameFontNormal" font="Fonts\ARIALN.TTF">
+                        <FontString
+                            name="$parentText"
+                            justifyH="CENTER"
+                            inherits="GameFontNormal"
+                            font="Interface\AddOns\T-Bidder\Fonts\ARIALN.ttf"
+                        >
                             <Size>
-                                <AbsDimension x="230" y="80"/>
+                                <AbsDimension x="230" y="80" />
                             </Size>
                             <Anchors>
                                 <Anchor point="LEFT">
                                     <Offset>
-                                        <AbsDimension x="0" y="0"/>
+                                        <AbsDimension x="0" y="0" />
                                     </Offset>
                                 </Anchor>
                             </Anchors>
                             <FontHeight val="14" />
-                            <Color r="1" g="1" b="1" />
                         </FontString>
                     </Layer>
                 </Layers>

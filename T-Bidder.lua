@@ -1,18 +1,38 @@
 --[[
-	T-Bidder v1.18 RU Remaster for Turtle WoW
-	Original author: Misha (Wht Mst)
-	Based on: DKPAuctionBidder
-	GitHub: https://github.com/whtmst/T-Bidder
+    T-Bidder v1.18 RU Remaster for Turtle WoW
+    Original author: Misha (Wht Mst)
+    Based on: DKPAuctionBidder
+    GitHub: https://github.com/whtmst/T-Bidder
 
-	Аддон для участия в DKP аукционах в рейде.
-	Отслеживает ставки, таймеры и результаты аукционов.
-	Last update:	v1.18
-	Tested for:		Turtle WoW
-]]--
+    Аддон для участия в DKP аукционах в рейде.
+    Отслеживает ставки, таймеры и результаты аукционов.
+    Last update:    v1.18
+    Tested for:        Turtle WoW
+]] --
+
+-- Настройка кириллического шрифта из папки аддона
+local MY_CUSTOM_FONT = "Interface\\AddOns\\T-Bidder\\Fonts\\ARIALN.ttf"
+
+-- Переопределяем стандартные шрифтовые объекты
+GameFontNormal:SetFont(MY_CUSTOM_FONT, 12)
+GameFontHighlight:SetFont(MY_CUSTOM_FONT, 12)
+GameFontNormalSmall:SetFont(MY_CUSTOM_FONT, 10)
+GameFontNormalLarge:SetFont(MY_CUSTOM_FONT, 16)
+
+-- Добавляем шрифты для всплывающих подсказок (Tooltip)
+GameTooltipText:SetFont(MY_CUSTOM_FONT, 12)
+GameTooltipHeaderText:SetFont(MY_CUSTOM_FONT, 14)
+GameTooltipTextSmall:SetFont(MY_CUSTOM_FONT, 10)
+
+-- Если в XML где-то используются специфические шрифты, их тоже можно "подцепить":
+NumberFontNormal:SetFont(MY_CUSTOM_FONT, 12, "OUTLINE")
 
 -- Идентификаторы аддона для коммуникации
 local T_Bidder_Identifier = "TBidder"
 local T_Bidder_SOTAprefix = "SOTAv1"
+
+-- Проверка наличия pfUI
+local T_Bidder_UseClassColors = IsAddOnLoaded("pfUI") or false
 
 -- Цветовые коды для текста
 local T_Bidder_CHAT_END = "|r"  -- Сброс цвета к стандартному
@@ -54,15 +74,15 @@ local T_Bidder_AuctionMaster = ""  -- Имя ведущего аукцион
 
 -- Цвета классов для окрашивания имен игроков в соответствии с WoW
 local T_Bidder_CLASS_COLORS = {
-    { "Druid", { 255,125, 10 } },    -- оранжевый
-    { "Hunter", { 171,212,115 } },   -- зеленый
-    { "Mage", { 105,204,240 } },     -- голубой
-    { "Paladin", { 245,140,186 } },  -- розовый
-    { "Priest", { 255,255,255 } },   -- белый
-    { "Rogue", { 255,245,105 } },    -- желтый
-    { "Shaman", { 0,112,222 } },     -- синий
-    { "Warlock", { 148,130,201 } },  -- фиолетовый
-    { "Warrior", { 199,156,110 } }   -- коричневый
+    ["DRUID"] = { 255,125, 10 },    -- оранжевый
+    ["HUNTER"] = { 171,212,115 },   -- зеленый
+    ["MAGE"] = { 105,204,240 },     -- голубой
+    ["PALADIN"] = { 245,140,186 },  -- розовый
+    ["PRIEST"] = { 255,255,255 },   -- белый
+    ["ROGUE"] = { 255,245,105 },    -- желтый
+    ["SHAMAN"] = { 0,112,222 },     -- синий
+    ["WARLOCK"] = { 148,130,201 },  -- фиолетовый
+    ["WARRIOR"] = { 199,156,110 }   -- коричневый
 }
 
 -- Вспомогательная функция для обрезки пробелов в начале и конце строки
@@ -231,11 +251,17 @@ function T_Bidder_MinimapButtonOnClick()
             getglobal("T_BidderHighestBidTextButtonText"):SetText("Аукцион идет - нет ставок")
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         elseif T_Bidder_AuctionState == 2 then
-            local color = T_Bidder_GetClassColorCodes(T_Bidder_Currentbid[5] or "Warrior")
-            local coloredText = "Макс. ставка: " .. T_Bidder_Currentbid[3] .. " (|cFF" ..
-                               string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
-                               T_Bidder_Currentbid[4] .. "|r)"
-            getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            local playerName = T_Bidder_Currentbid[4]
+            if T_Bidder_UseClassColors then
+                local color = T_Bidder_GetClassColorCodes(T_Bidder_Currentbid[5] or "Warrior")
+                local coloredText = "Макс. ставка: " .. T_Bidder_Currentbid[3] .. " (|cff" ..
+                                   string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
+                                   playerName .. "|r)"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            else
+                local plainText = "Макс. ставка: " .. T_Bidder_Currentbid[3] .. " (" .. playerName .. ")"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(plainText)
+            end
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         elseif T_Bidder_AuctionState == 3 then
             getglobal("T_BidderHighestBidTextButtonText"):SetText("Аукцион приостановлен")
@@ -244,11 +270,17 @@ function T_Bidder_MinimapButtonOnClick()
             getglobal("T_BidderHighestBidTextButtonText"):SetText("Аукцион завершен (Ожидаем победителя)")
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         elseif T_Bidder_AuctionState == 5 then
-            local color = T_Bidder_GetClassColorCodes(T_Bidder_AuctionWinnerClass or "Warrior")
-            local coloredText = "Аукцион завершен (Победил - |cFF" ..
-                               string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
-                               T_Bidder_AuctionWinner .. "|r)"
-            getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            local playerName = T_Bidder_AuctionWinner
+            if T_Bidder_UseClassColors then
+                local color = T_Bidder_GetClassColorCodes(T_Bidder_AuctionWinnerClass or "Warrior")
+                local coloredText = "Аукцион завершен (Победил - |cff" ..
+                                   string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
+                                   playerName .. "|r)"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            else
+                local plainText = "Аукцион завершен (Победил - " .. playerName .. ")"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(plainText)
+            end
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         end
         T_Bidder_GetPlayerDKP()  -- Обновляем ДКП игрока
@@ -387,12 +419,17 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
             T_Bidder_AuctionWinnerClass = T_Bidder_GetWinnerClass(playerName)
 
             -- Обновляем интерфейс с информацией о победителе
-            local color = T_Bidder_GetClassColorCodes(T_Bidder_AuctionWinnerClass)
-            local coloredText = "Аукцион завершен (Победил - |cFF" ..
-                               string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
-                               playerName .. "|r)"
-
-            getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            local winnerName = playerName
+            if T_Bidder_UseClassColors then
+                local color = T_Bidder_GetClassColorCodes(T_Bidder_AuctionWinnerClass)
+                local coloredText = "Аукцион завершен (Победил - |cff" ..
+                                   string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
+                                   winnerName .. "|r)"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            else
+                local plainText = "Аукцион завершен (Победил - " .. winnerName .. ")"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(plainText)
+            end
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
 
             T_Bidder_AuctionState = 5 -- Финальное состояние: победитель объявлен
@@ -415,14 +452,20 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         if T_Bidder_AuctionStatePrePause == 2 then
             -- Проверяем что данные о последней ставке существуют
             if T_Bidder_LastHighestBid and T_Bidder_LastHighestBid[3] and T_Bidder_LastHighestBid[4] then
-                local color = {1, 1, 1} -- белый по умолчанию
-                if T_Bidder_LastHighestBid[5] then
-                    color = T_Bidder_GetClassColorCodes(T_Bidder_LastHighestBid[5])
+                local playerName = T_Bidder_LastHighestBid[4]
+                if T_Bidder_UseClassColors then
+                    local color = {1, 1, 1} -- белый по умолчанию
+                    if T_Bidder_LastHighestBid[5] then
+                        color = T_Bidder_GetClassColorCodes(T_Bidder_LastHighestBid[5])
+                    end
+                    local coloredText = "Макс. ставка: " .. T_Bidder_LastHighestBid[3] .. " (|cff" ..
+                                       string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
+                                       playerName .. "|r)"
+                    getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+                else
+                    local plainText = "Макс. ставка: " .. T_Bidder_LastHighestBid[3] .. " (" .. playerName .. ")"
+                    getglobal("T_BidderHighestBidTextButtonText"):SetText(plainText)
                 end
-                local coloredText = "Макс. ставка: " .. T_Bidder_LastHighestBid[3] .. " (|cFF" ..
-                                   string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
-                                   T_Bidder_LastHighestBid[4] .. "|r)"
-                getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
                 getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
                 T_Bidder_AuctionState = 2  -- Восстанавливаем состояние "есть ставки"
             else
@@ -520,11 +563,15 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
                 prefix = "ALL-IN: "
             end
 
-            local coloredText = prefix .. bidAmount .. " (|cFF" ..
-                               string.format("%02x%02x%02x", classColor[1], classColor[2], classColor[3]) ..
-                               playerName .. "|r)"
-
-            getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            if T_Bidder_UseClassColors then
+                local coloredText = prefix .. bidAmount .. " (|cff" ..
+                                   string.format("%02x%02x%02x", classColor[1], classColor[2], classColor[3]) ..
+                                   playerName .. "|r)"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            else
+                local plainText = prefix .. bidAmount .. " (" .. playerName .. ")"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(plainText)
+            end
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
 
             T_Bidder_AuctionState = 2
@@ -575,11 +622,17 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
 
         -- Получение информации о максимальной ставке от SotA
         elseif msg_HB == "HIGHEST_BID" then
-            local color = T_Bidder_GetClassColorCodes(T_Bidder_Currentbid[5] or "Warrior")
-            local coloredText = "Макс. ставка: " .. T_Bidder_Currentbid[3] .. " (|cFF" ..
-                               string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
-                               T_Bidder_Currentbid[4] .. "|r)"
-            getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            local playerName = T_Bidder_Currentbid[4]
+            if T_Bidder_UseClassColors then
+                local color = T_Bidder_GetClassColorCodes(T_Bidder_Currentbid[5] or "Warrior")
+                local coloredText = "Макс. ставка: " .. T_Bidder_Currentbid[3] .. " (|cff" ..
+                                   string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
+                                   playerName .. "|r)"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+            else
+                local plainText = "Макс. ставка: " .. T_Bidder_Currentbid[3] .. " (" .. playerName .. ")"
+                getglobal("T_BidderHighestBidTextButtonText"):SetText(plainText)
+            end
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
             T_Bidder_LastHighestBid = T_Bidder_Currentbid  -- Сохраняем для восстановления после паузы
             T_Bidder_AuctionState = 2  -- Есть ставки
@@ -609,11 +662,17 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
         -- Возобновление аукциона через SotA
         elseif string.find(msg, "SOTA_AUCTION_RESUME") == 1 then
             if T_Bidder_AuctionStatePrePause == 2 then
-                local color = T_Bidder_GetClassColorCodes(T_Bidder_LastHighestBid[5] or "Warrior")
-                local coloredText = "Макс. ставка: " .. T_Bidder_LastHighestBid[3] .. " (|cFF" ..
-                                   string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
-                                   T_Bidder_LastHighestBid[4] .. "|r)"
-                getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+                local playerName = T_Bidder_LastHighestBid[4]
+                if T_Bidder_UseClassColors then
+                    local color = T_Bidder_GetClassColorCodes(T_Bidder_LastHighestBid[5] or "Warrior")
+                    local coloredText = "Макс. ставка: " .. T_Bidder_LastHighestBid[3] .. " (|cff" ..
+                                       string.format("%02x%02x%02x", color[1], color[2], color[3]) ..
+                                       playerName .. "|r)"
+                    getglobal("T_BidderHighestBidTextButtonText"):SetText(coloredText)
+                else
+                    local plainText = "Макс. ставка: " .. T_Bidder_LastHighestBid[3] .. " (" .. playerName .. ")"
+                    getglobal("T_BidderHighestBidTextButtonText"):SetText(plainText)
+                end
                 getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
                 T_Bidder_AuctionTimeLeft = tonumber(T_Bidder_Currentbid[4])
                 T_Bidder_AuctionState = 2  -- Восстанавливаем состояние "есть ставки"
@@ -673,16 +732,21 @@ end
 
 -- Функция получения цвета класса по названию класса
 function T_Bidder_GetClassColorCodes(classname)
-    local colors = { 128,128,128 } -- серый по умолчанию (если класс не найден)
-    local cc
-    for n=1, table.getn(T_Bidder_CLASS_COLORS), 1 do
-        cc = T_Bidder_CLASS_COLORS[n]
-        if cc[1] == classname then
-            return cc[2]  -- Возвращаем RGB цвет класса
-        end
+    -- Проверяем, есть ли classname и является ли он строкой
+    if not classname or type(classname) ~= "string" then
+        -- Возвращаем серый цвет по умолчанию в формате RGB
+        return { 128, 128, 128 }
     end
 
-    return colors  -- Возвращаем серый цвет по умолчанию
+    -- Преобразуем имя класса в верхний регистр для сравнения
+    local upperClassName = string.upper(classname)
+
+    -- Проверяем, есть ли такой класс в таблице
+    if T_Bidder_CLASS_COLORS[upperClassName] then
+        return T_Bidder_CLASS_COLORS[upperClassName]  -- Возвращаем RGB цвет класса
+    else
+        return { 128, 128, 128 }  -- Возвращаем серый цвет по умолчанию
+    end
 end
 
 -- Функция разделения строки на слова (для парсинга аддон-сообщений)
