@@ -84,6 +84,40 @@ function string.trim(str)
     return string.gsub(str, "^%s*(.-)%s*$", "%1")
 end
 
+-- Функция для установки серого цвета текста на кнопках
+function T_Bidder_SetDisabledButtonTextColors()
+    local buttons = {
+        "T_BidderBidMinButton",
+        "T_BidderBidMaxButton",
+        "T_BidderBidXButton"
+    }
+
+    for _, buttonName in ipairs(buttons) do
+        local button = getglobal(buttonName)
+        local buttonText = getglobal(buttonName.."Text")
+        if buttonText then
+            buttonText:SetTextColor(0.5, 0.5, 0.5)  -- Серый цвет
+        end
+    end
+end
+
+-- Функция для установки белого цвета текста на кнопках
+function T_Bidder_SetEnabledButtonTextColors()
+    local buttons = {
+        "T_BidderBidMinButton",
+        "T_BidderBidMaxButton",
+        "T_BidderBidXButton"
+    }
+
+    for _, buttonName in ipairs(buttons) do
+        local button = getglobal(buttonName)
+        local buttonText = getglobal(buttonName.."Text")
+        if buttonText then
+            buttonText:SetTextColor(1.0, 1.0, 1.0)  -- Белый цвет
+        end
+    end
+end
+
 -- Основная функция обработки событий аддона
 function T_Bidder_OnEvent(event, arg1, arg2, arg3, arg4, arg5)
     if (event == "CHAT_MSG_ADDON") then
@@ -141,6 +175,9 @@ function T_Bidder_BidMinOnClick()
         getglobal("T_BidderBidMinButton"):Disable()
         getglobal("T_BidderBidMaxButton"):Disable()
         getglobal("T_BidderBidXButton"):Disable()
+
+        -- Устанавливаем серый цвет текста для отключенных кнопок
+        T_Bidder_SetDisabledButtonTextColors()
     end
 end
 
@@ -154,6 +191,14 @@ function T_Bidder_BidMaxOnClick()
     if textElement then
         textElement:SetText(confirmText)
         T_BidderMaxBidConfirmationFrame:Show()  -- Показываем окно подтверждения
+
+        -- Визуально отключаем кнопки
+        getglobal("T_BidderBidMinButton"):Disable()
+        getglobal("T_BidderBidMaxButton"):Disable()
+        getglobal("T_BidderBidXButton"):Disable()
+
+        -- Устанавливаем серый цвет текста для отключенных кнопок
+        T_Bidder_SetDisabledButtonTextColors()
     else
         DEFAULT_CHAT_FRAME:AddMessage("Ошибка: не найден элемент подтверждения")
     end
@@ -170,6 +215,9 @@ function T_Bidder_BidXOnEnter(dkp)
         getglobal("T_BidderBidMinButton"):Disable()
         getglobal("T_BidderBidMaxButton"):Disable()
         getglobal("T_BidderBidXButton"):Disable()
+
+        -- Устанавливаем серый цвет текста для отключенных кнопок
+        T_Bidder_SetDisabledButtonTextColors()
     end
 end
 
@@ -189,12 +237,23 @@ function T_Bidder_MaxBidConfirmOnClick()
         getglobal("T_BidderBidMinButton"):Disable()
         getglobal("T_BidderBidMaxButton"):Disable()
         getglobal("T_BidderBidXButton"):Disable()
+
+        -- Устанавливаем серый цвет текста для отключенных кнопок
+        T_Bidder_SetDisabledButtonTextColors()
     end
 end
 
 -- Отмена максимальной ставки (нажатие НЕТ в окне подтверждения)
 function T_Bidder_MaxBidDeclineOnClick()
     T_BidderMaxBidConfirmationFrame:Hide()  -- Скрываем окно подтверждения
+
+    -- Включаем кнопки обратно и возвращаем белый цвет текста
+    getglobal("T_BidderBidMinButton"):Enable()
+    getglobal("T_BidderBidMaxButton"):Enable()
+    getglobal("T_BidderBidXButton"):Enable()
+
+    -- Возвращаем белый цвет текста для включенных кнопок
+    T_Bidder_SetEnabledButtonTextColors()
 end
 
 -- Таймеры для обновления интерфейса
@@ -216,6 +275,9 @@ function T_Bidder_BidFrameOnUpdate(elapsed)
         getglobal("T_BidderBidMinButton"):Enable()
         getglobal("T_BidderBidMaxButton"):Enable()
         getglobal("T_BidderBidXButton"):Enable()
+
+        -- Возвращаем белый цвет текста для включенных кнопок
+        T_Bidder_SetEnabledButtonTextColors()
     end
 
     -- Обновление статус-бара аукциона (только когда аукцион активен)
@@ -390,6 +452,26 @@ function T_Bidder_MinimapButtonOnClick()
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         end
         T_Bidder_GetPlayerDKP()  -- Обновляем ДКП игрока
+
+        -- Убедимся, что кнопки находятся в нужном состоянии и имеют правильный цвет текста
+        if T_Bidder_SubmitBidFlag == 1 then
+            -- Если ставка разрешена, включаем кнопки и устанавливаем белый цвет текста
+            getglobal("T_BidderBidMinButton"):Enable()
+            getglobal("T_BidderBidMaxButton"):Enable()
+            getglobal("T_BidderBidXButton"):Enable()
+
+            -- Возвращаем белый цвет текста для включенных кнопок
+            T_Bidder_SetEnabledButtonTextColors()
+        else
+            -- Если ставка заблокирована, отключаем кнопки и устанавливаем серый цвет текста
+            getglobal("T_BidderBidMinButton"):Disable()
+            getglobal("T_BidderBidMaxButton"):Disable()
+            getglobal("T_BidderBidXButton"):Disable()
+
+            -- Устанавливаем серый цвет текста для отключенных кнопок
+            T_Bidder_SetDisabledButtonTextColors()
+        end
+
         T_Bidder_IsShown = 1  -- Помечаем интерфейс как показанный
     else
         T_Bidder_CloseUI()  -- Скрываем интерфейс
@@ -400,6 +482,15 @@ end
 function T_Bidder_CloseUI()
     T_BidderMaxBidConfirmationFrame:Hide()  -- Скрываем окно подтверждения если открыто
     T_BidderUIFrame:Hide()  -- Скрываем основной интерфейс
+
+    -- Включаем кнопки и возвращаем белый цвет текста
+    getglobal("T_BidderBidMinButton"):Enable()
+    getglobal("T_BidderBidMaxButton"):Enable()
+    getglobal("T_BidderBidXButton"):Enable()
+
+    -- Возвращаем белый цвет текста для включенных кнопок
+    T_Bidder_SetEnabledButtonTextColors()
+
     T_Bidder_IsShown = 0  -- Помечаем интерфейс как скрытый
 end
 
@@ -495,8 +586,15 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         getglobal("T_BidderUIFrameAuctionStatusbar"):Hide()
         getglobal("T_BidderUIFrameTimerFrame"):Hide()
+
+        -- Включаем кнопки и возвращаем белый цвет текста
+        getglobal("T_BidderBidMinButton"):Enable()
         getglobal("T_BidderBidMaxButton"):Enable()
         getglobal("T_BidderBidXButton"):Enable()
+
+        -- Возвращаем белый цвет текста для включенных кнопок
+        T_Bidder_SetEnabledButtonTextColors()
+
         T_Bidder_AuctionState = 0  -- Нет аукциона
         -- Очищаем информацию о предмете аукциона и скрываем фрейм
         T_Bidder_AuctionItemLink = ""
@@ -513,8 +611,15 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
         getglobal("T_BidderUIFrameAuctionStatusbar"):Hide()
         getglobal("T_BidderUIFrameTimerFrame"):Hide()
+
+        -- Включаем кнопки и возвращаем белый цвет текста
+        getglobal("T_BidderBidMinButton"):Enable()
         getglobal("T_BidderBidMaxButton"):Enable()
         getglobal("T_BidderBidXButton"):Enable()
+
+        -- Возвращаем белый цвет текста для включенных кнопок
+        T_Bidder_SetEnabledButtonTextColors()
+
         T_Bidder_AuctionState = 4 -- Новое состояние: ожидание победителя
         -- Очищаем информацию о предмете аукциона и скрываем фрейм
         T_Bidder_AuctionItemLink = ""
@@ -782,8 +887,15 @@ function T_Bidder_OnChatMsgAddon(event, prefix, msg, channel, sender)
             getglobal("T_BidderHighestBidTextButtonPlayer"):SetText("")
             getglobal("T_BidderUIFrameAuctionStatusbar"):Hide()
             getglobal("T_BidderUIFrameTimerFrame"):Hide()
+
+            -- Включаем кнопки и возвращаем белый цвет текста
+            getglobal("T_BidderBidMinButton"):Enable()
             getglobal("T_BidderBidMaxButton"):Enable()
             getglobal("T_BidderBidXButton"):Enable()
+
+            -- Возвращаем белый цвет текста для включенных кнопок
+            T_Bidder_SetEnabledButtonTextColors()
+
             -- Очищаем информацию о предмете аукциона и скрываем фрейм
             T_Bidder_AuctionItemLink = ""
             local itemFrame = getglobal("T_BidderUIFrameItem")
