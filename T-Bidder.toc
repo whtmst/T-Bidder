@@ -1,6 +1,6 @@
 ## Interface: 11200
-## Title: [ |cFFFFFFFFWM|r ] |cFF11A6ECT-Bidder|r |cFF7FFF7Fv1.18|r
-## Version: 1.18
+## Title: [ |cFFFFFFFFWM|r ] |cFF11A6ECT-Bidder|r |cFF7FFF7Fv1.18.1|r
+## Version: 1.18.1
 ## Author: Mikhail Palagin (Wht Mst)
 ## Notes: |cFF11A6ECT-Bidder|r - DKP auction bidding addon. Compatible with SotA system. Made for |cff00ff00Turtle WoW|r with love by Wht Mst.
 T-Bidder.xml
