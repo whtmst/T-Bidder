@@ -8,22 +8,9 @@
     Отслеживает ставки, таймеры и результаты аукционов.
 ]] --
 
--- Настройка кириллического шрифта из папки аддона
-local MY_CUSTOM_FONT = "Interface\\AddOns\\T-Bidder\\Fonts\\ARIALN.ttf"
 
--- Переопределяем стандартные шрифтовые объекты
-GameFontNormal:SetFont(MY_CUSTOM_FONT, 12)
-GameFontHighlight:SetFont(MY_CUSTOM_FONT, 12)
-GameFontNormalSmall:SetFont(MY_CUSTOM_FONT, 10)
-GameFontNormalLarge:SetFont(MY_CUSTOM_FONT, 16)
-
--- Добавляем шрифты для всплывающих подсказок (Tooltip)
-GameTooltipText:SetFont(MY_CUSTOM_FONT, 12)
-GameTooltipHeaderText:SetFont(MY_CUSTOM_FONT, 14)
-GameTooltipTextSmall:SetFont(MY_CUSTOM_FONT, 10)
-
--- Если в XML где-то используются специфические шрифты, их тоже можно "подцепить":
-NumberFontNormal:SetFont(MY_CUSTOM_FONT, 12, "OUTLINE")
+-- Настройка кириллического шрифта из папки аддона (только для внутреннего использования)
+local T_Bidder_FontPath = "Interface\\AddOns\\T-Bidder\\Fonts\\ARIALN.ttf"
 
 -- Идентификаторы аддона для коммуникации
 local T_Bidder_Identifier = "TBidder"

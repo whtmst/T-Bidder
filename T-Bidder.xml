@@ -1,4 +1,57 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- Определение собственных шрифтов аддона -->
+    <Font name="T_Bidder_Font_Normal" font="Interface\AddOns\T-Bidder\Fonts\ARIALN.ttf" virtual="true">
+        <FontHeight>
+            <AbsValue val="12" />
+        </FontHeight>
+        <Color r="1.0" g="1.0" b="1.0" />
+        <Shadow>
+            <Offset>
+                <AbsDimension x="1" y="-1" />
+            </Offset>
+            <Color r="0" g="0" b="0" />
+        </Shadow>
+    </Font>
+
+    <Font name="T_Bidder_Font_Small" font="Interface\AddOns\T-Bidder\Fonts\ARIALN.ttf" virtual="true">
+        <FontHeight>
+            <AbsValue val="10" />
+        </FontHeight>
+        <Color r="1.0" g="1.0" b="1.0" />
+        <Shadow>
+            <Offset>
+                <AbsDimension x="1" y="-1" />
+            </Offset>
+            <Color r="0" g="0" b="0" />
+        </Shadow>
+    </Font>
+
+    <Font name="T_Bidder_Font_Large" font="Interface\AddOns\T-Bidder\Fonts\ARIALN.ttf" virtual="true">
+        <FontHeight>
+            <AbsValue val="14" />
+        </FontHeight>
+        <Color r="1.0" g="1.0" b="1.0" />
+        <Shadow>
+            <Offset>
+                <AbsDimension x="1" y="-1" />
+            </Offset>
+            <Color r="0" g="0" b="0" />
+        </Shadow>
+    </Font>
+
+    <Font name="T_Bidder_Font_Button" font="Interface\AddOns\T-Bidder\Fonts\ARIALN.ttf" virtual="true">
+        <FontHeight>
+            <AbsValue val="12" />
+        </FontHeight>
+        <Color r="1.0" g="1.0" b="1.0" />
+        <Shadow>
+            <Offset>
+                <AbsDimension x="1" y="-1" />
+            </Offset>
+            <Color r="0" g="0" b="0" />
+        </Shadow>
+    </Font>
+
     <Script file="T-Bidder.lua" />
     <Button
         name="T_Bidder_MinimapButtonFrame"
@@ -66,9 +119,9 @@
             </OnDragStop>
             <OnEnter>
                 GameTooltip:SetOwner(this, "ANCHOR_LEFT")
-                GameTooltip:AddLine("T-Bidder", 1, 1, 1)
-                GameTooltip:AddLine("Левый клик - открыть интерфейс", 1, 1, 0)
-                GameTooltip:AddLine("Правый клик и перетаскивание - переместить кнопку", 1, 1, 0)
+                GameTooltip:AddLine("T-Bidder v1.18.1", 1, 1, 1)
+                GameTooltip:AddLine("LMB - Open addon", 1, 1, 0)
+                GameTooltip:AddLine("RMB + Drag - Move icon", 1, 1, 0)
                 GameTooltip:Show()
             </OnEnter>
             <OnLeave>
@@ -114,7 +167,7 @@
                 </Anchors>
                 <Layers>
                     <Layer>
-                        <FontString name="$parentText" justifyH="LEFT" inherits="GameFontNormal">
+                        <FontString name="$parentText" justifyH="LEFT" inherits="T_Bidder_Font_Normal">
                             <Size>
                                 <AbsDimension x="275" y="23" />
                             </Size>
@@ -126,7 +179,7 @@
                                 </Anchor>
                             </Anchors>
                         </FontString>
-                        <FontString name="$parentPlayer" justifyH="LEFT" inherits="GameFontNormal">
+                        <FontString name="$parentPlayer" justifyH="LEFT" inherits="T_Bidder_Font_Normal">
                             <Size>
                                 <AbsDimension x="100" y="23" />
                             </Size>
@@ -150,7 +203,7 @@
                 </Anchors>
                 <Layers>
                     <Layer>
-                        <FontString name="$parentText" justifyH="LEFT" inherits="GameFontNormal">
+                        <FontString name="$parentText" justifyH="LEFT" inherits="T_Bidder_Font_Normal">
                             <Size>
                                 <AbsDimension x="280" y="23" />
                             </Size>
@@ -174,6 +227,9 @@
                         <Offset x="16" y="16" />
                     </Anchor>
                 </Anchors>
+                <NormalFont inherits="T_Bidder_Font_Button" />
+                <HighlightFont inherits="T_Bidder_Font_Button" />
+                <DisabledFont inherits="T_Bidder_Font_Button" />
                 <Scripts>
                     <OnClick>
                         T_Bidder_BidMinOnClick()
@@ -190,6 +246,9 @@
                         <Offset x="-16" y="16" />
                     </Anchor>
                 </Anchors>
+                <NormalFont inherits="T_Bidder_Font_Button" />
+                <HighlightFont inherits="T_Bidder_Font_Button" />
+                <DisabledFont inherits="T_Bidder_Font_Button" />
                 <Scripts>
                     <OnClick>
                         T_Bidder_BidMaxOnClick()
@@ -215,7 +274,7 @@
 					this:ClearFocus()
 				</OnEnterPressed>
 			</Scripts>
-			<FontString name="T_BidderBidXString" inherits="GameFontNormal" />
+			<FontString name="T_BidderBidXString" inherits="T_Bidder_Font_Normal" />
 		</EditBox>
             <Button name="T_BidderBidXButton" inherits="UIPanelButtonTemplate" text="Своя ставка">
                 <Size>
@@ -226,6 +285,9 @@
                         <Offset x="-16" y="42" />
                     </Anchor>
                 </Anchors>
+                <NormalFont inherits="T_Bidder_Font_Button" />
+                <HighlightFont inherits="T_Bidder_Font_Button" />
+                <DisabledFont inherits="T_Bidder_Font_Button" />
                 <Scripts>
                     <OnClick>
                         T_Bidder_BidXOnEnter(T_BidderBidEditBox:GetText())
@@ -297,7 +359,10 @@
                 <Anchors>
                     <Anchor point="TOP">
                         <Offset>
-                            <AbsDimension x="0" y="68" /> <!-- Здесь задается положение фрейма предмета относительно родителя -->
+                            <AbsDimension
+                                x="0"
+                                y="68"
+                            /> <!-- Здесь задается положение фрейма предмета относительно родителя -->
                         </Offset>
                     </Anchor>
                 </Anchors>
@@ -318,13 +383,7 @@
                 </Backdrop>
                 <Layers>
                     <Layer level="ARTWORK">
-                        <FontString
-                            name="$parentItemName"
-                            inherits="GameFontNormal"
-                            font="Interface\AddOns\T-Bidder\Fonts\ARIALN.ttf"
-                            text=""
-                        >
-                            <FontHeight val="12" />
+                        <FontString name="$parentItemName" inherits="T_Bidder_Font_Normal" text="">
                             <Size>
                                 <AbsDimension x="270" y="40" />
                             </Size>
@@ -377,7 +436,7 @@
                         </Anchor>
                     </Anchors>
                 </Texture>
-                <FontString inherits="GameFontNormal" text="T-Bidder by Misha (Wht Mst)">
+                <FontString inherits="T_Bidder_Font_Normal" text="T-Bidder by |cffFF7D0AMisha|r (Wht Mst)">
                     <Anchors>
                         <Anchor point="TOP" relativeTo="$parentHeaderTexture">
                             <Offset>
@@ -454,12 +513,7 @@
                 </Anchors>
                 <Layers>
                     <Layer>
-                        <FontString
-                            name="$parentText"
-                            justifyH="CENTER"
-                            inherits="GameFontNormal"
-                            font="Interface\AddOns\T-Bidder\Fonts\ARIALN.ttf"
-                        >
+                        <FontString name="$parentText" justifyH="CENTER" inherits="T_Bidder_Font_Large">
                             <Size>
                                 <AbsDimension x="230" y="80" />
                             </Size>
@@ -470,7 +524,6 @@
                                     </Offset>
                                 </Anchor>
                             </Anchors>
-                            <FontHeight val="14" />
                         </FontString>
                     </Layer>
                 </Layers>
@@ -484,6 +537,9 @@
                         <Offset x="16" y="16" />
                     </Anchor>
                 </Anchors>
+                <NormalFont inherits="T_Bidder_Font_Button" />
+                <HighlightFont inherits="T_Bidder_Font_Button" />
+                <DisabledFont inherits="T_Bidder_Font_Button" />
                 <Scripts>
                     <OnClick>T_Bidder_MaxBidConfirmOnClick()</OnClick>
                 </Scripts>
@@ -497,6 +553,9 @@
                         <Offset x="-16" y="16" />
                     </Anchor>
                 </Anchors>
+                <NormalFont inherits="T_Bidder_Font_Button" />
+                <HighlightFont inherits="T_Bidder_Font_Button" />
+                <DisabledFont inherits="T_Bidder_Font_Button" />
                 <Scripts>
                     <OnClick>T_Bidder_MaxBidDeclineOnClick()</OnClick>
                 </Scripts>
