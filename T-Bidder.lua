@@ -122,6 +122,12 @@ function T_Bidder_BidMinOnClick()
     if T_Bidder_SubmitBidFlag == 1 then
         T_Bidder_SendBid("bid min")
         T_Bidder_SubmitBidFlag = 0  -- Блокируем повторные ставки
+        T_Bidder_BidTimer = 0  -- Сбрасываем таймер
+
+        -- Визуально отключаем кнопки
+        getglobal("T_BidderBidMinButton"):Disable()
+        getglobal("T_BidderBidMaxButton"):Disable()
+        getglobal("T_BidderBidXButton"):Disable()
     end
 end
 
@@ -145,6 +151,12 @@ function T_Bidder_BidXOnEnter(dkp)
     if T_Bidder_SubmitBidFlag == 1 then
         T_Bidder_SendBid("bid " .. dkp)
         T_Bidder_SubmitBidFlag = 0  -- Блокируем повторные ставки
+        T_Bidder_BidTimer = 0  -- Сбрасываем таймер
+
+        -- Визуально отключаем кнопки
+        getglobal("T_BidderBidMinButton"):Disable()
+        getglobal("T_BidderBidMaxButton"):Disable()
+        getglobal("T_BidderBidXButton"):Disable()
     end
 end
 
@@ -158,6 +170,12 @@ function T_Bidder_MaxBidConfirmOnClick()
         T_Bidder_SendBid("bid max")
         T_BidderMaxBidConfirmationFrame:Hide()  -- Скрываем окно подтверждения
         T_Bidder_SubmitBidFlag = 0  -- Блокируем повторные ставки
+        T_Bidder_BidTimer = 0  -- Сбрасываем таймер
+
+        -- Визуально отключаем кнопки
+        getglobal("T_BidderBidMinButton"):Disable()
+        getglobal("T_BidderBidMaxButton"):Disable()
+        getglobal("T_BidderBidXButton"):Disable()
     end
 end
 
@@ -179,6 +197,11 @@ function T_Bidder_BidFrameOnUpdate(elapsed)
     if T_Bidder_BidTimer > T_Bidder_SubmitBidTimer then
         T_Bidder_BidTimer = 0
         T_Bidder_SubmitBidFlag = 1  -- Разрешаем следующую ставку
+
+        -- Включаем кнопки обратно
+        getglobal("T_BidderBidMinButton"):Enable()
+        getglobal("T_BidderBidMaxButton"):Enable()
+        getglobal("T_BidderBidXButton"):Enable()
     end
 
     -- Обновление статус-бара аукциона (только когда аукцион активен)
@@ -290,6 +313,19 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         msg = string.gsub(msg, " ish ", " is ")
     end
 
+    -- Синхронизация таймера по сообщениям чата (SotA)
+    -- Это нужно, потому что иногда аддон не присылает пакет синхронизации при продлении аукциона
+    if string.find(msg, "SotA") and string.find(msg, "Осталось") then
+        local _, _, seconds = string.find(msg, "Осталось (%d+) секун")
+        if seconds then
+            T_Bidder_AuctionTimeLeft = tonumber(seconds)
+            -- Если таймер продлили, обновляем и общую длительность полосы
+            if T_Bidder_AuctionTimeLeft > T_Bidder_AuctionTime then
+                T_Bidder_AuctionTime = T_Bidder_AuctionTimeLeft
+            end
+        end
+    end
+
     -- Начало аукциона (мастер лута объявляет начало)
     if string.find(msg, "Auction open for") then
         T_Bidder_AuctionMaster = sender
@@ -301,8 +337,14 @@ function T_Bidder_OnChatMsgRaid(event, msg, sender, language, channel)
         T_BidderUIFrameAuctionStatusbar:Show()
         T_BidderUIFrameTimerFrame:Show()
 
-        T_Bidder_AuctionTime = 30
-        T_Bidder_AuctionTimeLeft = 30
+        -- Если аукцион еще не активен (State 0, 4, 5), ставим дефолтное время 30с.
+        -- Если State = 1/2/3, значит аукцион уже запущен (например, через аддон с правильным временем),
+        -- и мы не должны сбрасывать таймер.
+        if T_Bidder_AuctionState == 0 or T_Bidder_AuctionState >= 4 then
+            T_Bidder_AuctionTime = 30
+            T_Bidder_AuctionTimeLeft = 30
+        end
+
         getglobal("T_BidderUIFrameAuctionStatusbar"):SetWidth(T_Bidder_StatusbarStandardwidth)
 
         T_Bidder_AuctionState = 1  -- Аукцион активен, ставок нет
